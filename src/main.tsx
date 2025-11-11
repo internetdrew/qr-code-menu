@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 import { queryClient } from "../utils/trpc";
 import { QueryClientProvider } from "@tanstack/react-query";
 import Login from "./routes/Login.tsx";
@@ -25,9 +25,25 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/",
         index: true,
-        element: <h1>hello</h1>,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: "dashboard",
+        children: [
+          {
+            index: true,
+            element: <h1>Dashboard Home</h1>,
+          },
+          {
+            path: "restaurants",
+            element: <h1>Restaurant Management</h1>,
+          },
+          {
+            path: "settings",
+            element: <h1>Settings</h1>,
+          },
+        ],
       },
     ],
   },
