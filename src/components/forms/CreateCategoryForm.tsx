@@ -101,8 +101,8 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 />
               </FormControl>
               <FormDescription>
-                You can provide additional details about this category
-                (optional).
+                You can (optionally) provide additional details about this
+                category . This will be displayed to customers.
               </FormDescription>
               <FormMessage />
             </FormItem>
