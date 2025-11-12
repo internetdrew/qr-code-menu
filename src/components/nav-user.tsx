@@ -25,18 +25,18 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 import { supabaseBrowserClient } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { user } = useAuth();
 
   const signOut = async () => {
-    // Implement your sign-out logic here
-    console.log("User signed out");
     try {
-      supabaseBrowserClient.auth.signOut();
+      await supabaseBrowserClient.auth.signOut();
     } catch (error) {
       console.error("Error signing out:", error);
+      toast.error("Error signing out");
     }
   };
 
