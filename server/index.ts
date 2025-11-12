@@ -9,11 +9,13 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { createServerSupabaseClient } from "./supabase";
 import { restaurantRouter } from "./routers/restaurantRouter";
+import { qrCodeRouter } from "./routers/qrRouter";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 export const appRouter = router({
   restaurant: restaurantRouter,
+  qr: qrCodeRouter,
 });
 
 const corsOptions = {
