@@ -3,11 +3,12 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
-import { queryClient } from "../utils/trpc";
+import { queryClient } from "./utils/trpc.ts";
 import { QueryClientProvider } from "@tanstack/react-query";
 import Login from "./routes/Login.tsx";
 import { AuthProvider } from "./contexts/auth.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import { RestaurantProvider } from "./contexts/ActiveRestaurantContext.tsx";
 
 const router = createBrowserRouter([
   {
@@ -19,7 +20,9 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <RestaurantProvider>
+            <App />
+          </RestaurantProvider>
         </QueryClientProvider>
       </ProtectedRoute>
     ),
@@ -36,8 +39,8 @@ const router = createBrowserRouter([
             element: <h1>Dashboard Home</h1>,
           },
           {
-            path: "restaurants",
-            element: <h1>Restaurant Management</h1>,
+            path: "menu",
+            element: <h1>Dashboard Menu</h1>,
           },
           {
             path: "settings",
