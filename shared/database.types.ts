@@ -14,24 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      qr_codes: {
+        Row: {
+          created_at: string
+          id: number
+          public_url: string
+          restaurant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          public_url: string
+          restaurant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          public_url?: string
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_qr_codes_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurants: {
         Row: {
           created_at: string
           id: string
           name: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
