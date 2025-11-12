@@ -5,6 +5,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
 import { ScrollText, Settings } from "lucide-react";
@@ -17,6 +18,7 @@ const navItems = [
 
 export function NavMain() {
   const { restaurants } = useRestaurantContext();
+  const { setOpenMobile } = useSidebar();
 
   if (!restaurants.length) {
     return null;
@@ -30,7 +32,7 @@ export function NavMain() {
           {navItems?.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <Link to={item.url}>
+                <Link to={item.url} onClick={() => setOpenMobile(false)}>
                   <item.icon />
                   <span>{item.title}</span>
                 </Link>
