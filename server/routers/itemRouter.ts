@@ -52,7 +52,7 @@ export const itemRouter = router({
 
       const { data, error } = await supabaseAdminClient
         .from("restaurant_items")
-        .select("*")
+        .select("*, category:restaurant_categories(name)")
         .eq("restaurant_id", restaurantId)
         .order("created_at", { ascending: true });
 
