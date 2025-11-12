@@ -1,24 +1,19 @@
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import express from "express";
 import cors from "cors";
-import { publicProcedure, router, createContext } from "./trpc";
-import { z } from "zod";
+import { router, createContext } from "./trpc";
 import dotenv from "dotenv";
 import path from "path";
 import compression from "compression";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { createServerSupabaseClient } from "./supabase";
+import { restaurantRouter } from "./routers/restaurantRouter";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 export const appRouter = router({
-  greeting: publicProcedure
-    .input(z.object({ intro: z.string() }))
-    .query((opts) => {
-      const { input } = opts;
-      return `${input.intro} LyteStack` as const;
-    }),
+  restaurant: restaurantRouter,
 });
 
 const corsOptions = {
