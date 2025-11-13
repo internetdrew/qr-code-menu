@@ -20,9 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import ItemForm from "@/components/forms/ItemForm";
+import DeleteItemAlertDialog from "@/components/dialogs/DeleteItemAlertDialog";
 
-const MenuPage = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+const ItemsPage = () => {
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemForEdit, setItemForEdit] = useState<GetItemColumnsItem | null>(
+    null,
+  );
+  const [itemForDelete, setItemForDelete] = useState<GetItemColumnsItem | null>(
+    null,
+  );
   const [activeTab, setActiveTab] = useState<string>("all");
 
   const { activeRestaurant } = useRestaurantContext();
@@ -55,12 +66,18 @@ const MenuPage = () => {
       : items?.filter((item) => item.category_id === Number(activeTab));
 
   const handleEditButtonClick = (item: GetItemColumnsItem) => {
-    // Implement edit functionality
-    console.log("Edit item:", item);
+    setItemForEdit(item);
+    setIsItemDialogOpen(true);
   };
   const handleDeleteButtonClick = (item: GetItemColumnsItem) => {
-    // Implement edit functionality
-    console.log("Edit item:", item);
+    setItemForDelete(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleAddItemClick = () => {
+    setItemForEdit(null);
+    setItemForDelete(null);
+    setIsItemDialogOpen(true);
   };
 
   const itemColumns = getItemColumns(
@@ -71,11 +88,13 @@ const MenuPage = () => {
   return (
     <div>
       <div className="flex">
-        <Button className="ml-auto" onClick={() => setIsDialogOpen(true)}>
+        <Button
+          className="ml-auto"
+          onClick={() => setIsCategoryDialogOpen(true)}
+        >
           Add Item Category
         </Button>
       </div>
-
       <div>
         {categories?.length === 0 ? (
           <p className="text-accent-foreground mt-48 text-center">
@@ -87,6 +106,7 @@ const MenuPage = () => {
             <div className="mt-8 mb-4 flex items-center justify-between">
               <Tabs
                 defaultValue="all"
+                value={activeTab}
                 onValueChange={setActiveTab}
                 className="flex items-center"
               >
@@ -113,16 +133,24 @@ const MenuPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <TabsList className="hidden lg:flex">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  {categories?.map((category) => (
-                    <TabsTrigger key={category.id} value={category.name}>
-                      {category.name}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
+                <ScrollArea className="max-w-xl rounded-md border">
+                  <TabsList className="hidden lg:flex">
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    {categories?.map((category) => (
+                      <TabsTrigger
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
+                        {category.name}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
               </Tabs>
-              <Button variant={"outline"}>Add Item</Button>
+              <Button variant={"outline"} onClick={handleAddItemClick}>
+                Add Item
+              </Button>
             </div>
             <DataTable
               isLoading={isLoadingItems}
@@ -136,14 +164,39 @@ const MenuPage = () => {
       <FormDialog
         title="Add Item Category"
         description="Add a new item category to your menu. You can add items to this category later."
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
+        isDialogOpen={isCategoryDialogOpen}
+        setIsDialogOpen={setIsCategoryDialogOpen}
         formComponent={
-          <CreateCategoryForm onSuccess={() => setIsDialogOpen(false)} />
+          <CreateCategoryForm
+            onSuccess={() => setIsCategoryDialogOpen(false)}
+          />
         }
       />
+      {categories && (
+        <FormDialog
+          title={itemForEdit ? `Edit ${itemForEdit.name}` : "Add an Item"}
+          description="Add a new item to your menu and assign it to a category."
+          isDialogOpen={isItemDialogOpen}
+          setIsDialogOpen={setIsItemDialogOpen}
+          formComponent={
+            <ItemForm
+              item={itemForEdit}
+              categories={categories}
+              onSuccess={() => setIsItemDialogOpen(false)}
+            />
+          }
+        />
+      )}
+
+      {itemForDelete && (
+        <DeleteItemAlertDialog
+          item={itemForDelete}
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        />
+      )}
     </div>
   );
 };
 
-export default MenuPage;
+export default ItemsPage;

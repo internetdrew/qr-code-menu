@@ -8,10 +8,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
-import { ScrollText, Settings } from "lucide-react";
+import { HandPlatter, ScrollText, Settings } from "lucide-react";
 import { Link } from "react-router";
 
 const navItems = [
+  { title: "Items", url: "/dashboard/items", icon: HandPlatter },
   { title: "Menu", url: "/dashboard/menu", icon: ScrollText },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
