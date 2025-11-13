@@ -74,6 +74,12 @@ const ItemsPage = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleAddItemClick = () => {
+    setItemForEdit(null);
+    setItemForDelete(null);
+    setIsItemDialogOpen(true);
+  };
+
   const itemColumns = getItemColumns(
     handleEditButtonClick,
     handleDeleteButtonClick,
@@ -142,10 +148,7 @@ const ItemsPage = () => {
                   <ScrollBar orientation="horizontal" />
                 </ScrollArea>
               </Tabs>
-              <Button
-                variant={"outline"}
-                onClick={() => setIsItemDialogOpen(true)}
-              >
+              <Button variant={"outline"} onClick={handleAddItemClick}>
                 Add Item
               </Button>
             </div>
