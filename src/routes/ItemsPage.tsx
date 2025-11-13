@@ -133,8 +133,8 @@ const ItemsPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <ScrollArea className="max-w-xl rounded-md border">
-                  <TabsList className="hidden lg:flex">
+                <ScrollArea className="max-w-xl">
+                  <TabsList className="mb-3 hidden lg:flex">
                     <TabsTrigger value="all">All</TabsTrigger>
                     {categories?.map((category) => (
                       <TabsTrigger
