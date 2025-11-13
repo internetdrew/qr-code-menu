@@ -21,9 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import ItemForm from "@/components/forms/ItemForm";
 
 const ItemsPage = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("all");
 
   const { activeRestaurant } = useRestaurantContext();
@@ -72,7 +74,10 @@ const ItemsPage = () => {
   return (
     <div>
       <div className="flex">
-        <Button className="ml-auto" onClick={() => setIsDialogOpen(true)}>
+        <Button
+          className="ml-auto"
+          onClick={() => setIsCategoryDialogOpen(true)}
+        >
           Add Item Category
         </Button>
       </div>
@@ -87,6 +92,7 @@ const ItemsPage = () => {
             <div className="mt-8 mb-4 flex items-center justify-between">
               <Tabs
                 defaultValue="all"
+                value={activeTab}
                 onValueChange={setActiveTab}
                 className="flex items-center"
               >
@@ -125,7 +131,12 @@ const ItemsPage = () => {
                   <ScrollBar orientation="horizontal" />
                 </ScrollArea>
               </Tabs>
-              <Button variant={"outline"}>Add Item</Button>
+              <Button
+                variant={"outline"}
+                onClick={() => setIsItemDialogOpen(true)}
+              >
+                Add Item
+              </Button>
             </div>
             <DataTable
               isLoading={isLoadingItems}
@@ -139,10 +150,21 @@ const ItemsPage = () => {
       <FormDialog
         title="Add Item Category"
         description="Add a new item category to your menu. You can add items to this category later."
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
+        isDialogOpen={isCategoryDialogOpen}
+        setIsDialogOpen={setIsCategoryDialogOpen}
         formComponent={
-          <CreateCategoryForm onSuccess={() => setIsDialogOpen(false)} />
+          <CreateCategoryForm
+            onSuccess={() => setIsCategoryDialogOpen(false)}
+          />
+        }
+      />
+      <FormDialog
+        title="Add an Item"
+        description="Add a new item to your menu and assign it to a category."
+        isDialogOpen={isItemDialogOpen}
+        setIsDialogOpen={setIsItemDialogOpen}
+        formComponent={
+          <ItemForm onSuccess={() => setIsItemDialogOpen(false)} />
         }
       />
     </div>
