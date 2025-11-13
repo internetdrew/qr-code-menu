@@ -22,10 +22,18 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ItemForm from "@/components/forms/ItemForm";
+import DeleteItemAlertDialog from "@/components/dialogs/DeleteItemAlertDialog";
 
 const ItemsPage = () => {
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [itemForEdit, setItemForEdit] = useState<GetItemColumnsItem | null>(
+    null,
+  );
+  const [itemForDelete, setItemForDelete] = useState<GetItemColumnsItem | null>(
+    null,
+  );
   const [activeTab, setActiveTab] = useState<string>("all");
 
   const { activeRestaurant } = useRestaurantContext();
@@ -58,12 +66,12 @@ const ItemsPage = () => {
       : items?.filter((item) => item.category_id === Number(activeTab));
 
   const handleEditButtonClick = (item: GetItemColumnsItem) => {
-    // Implement edit functionality
-    console.log("Edit item:", item);
+    setItemForEdit(item);
+    setIsItemDialogOpen(true);
   };
   const handleDeleteButtonClick = (item: GetItemColumnsItem) => {
-    // Implement edit functionality
-    console.log("Edit item:", item);
+    setItemForDelete(item);
+    setIsDeleteDialogOpen(true);
   };
 
   const itemColumns = getItemColumns(
@@ -123,7 +131,10 @@ const ItemsPage = () => {
                   <TabsList className="hidden lg:flex">
                     <TabsTrigger value="all">All</TabsTrigger>
                     {categories?.map((category) => (
-                      <TabsTrigger key={category.id} value={category.name}>
+                      <TabsTrigger
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
                         {category.name}
                       </TabsTrigger>
                     ))}
@@ -158,15 +169,29 @@ const ItemsPage = () => {
           />
         }
       />
-      <FormDialog
-        title="Add an Item"
-        description="Add a new item to your menu and assign it to a category."
-        isDialogOpen={isItemDialogOpen}
-        setIsDialogOpen={setIsItemDialogOpen}
-        formComponent={
-          <ItemForm onSuccess={() => setIsItemDialogOpen(false)} />
-        }
-      />
+      {categories && (
+        <FormDialog
+          title={itemForEdit ? `Edit ${itemForEdit.name}` : "Add an Item"}
+          description="Add a new item to your menu and assign it to a category."
+          isDialogOpen={isItemDialogOpen}
+          setIsDialogOpen={setIsItemDialogOpen}
+          formComponent={
+            <ItemForm
+              item={itemForEdit}
+              categories={categories}
+              onSuccess={() => setIsItemDialogOpen(false)}
+            />
+          }
+        />
+      )}
+
+      {itemForDelete && (
+        <DeleteItemAlertDialog
+          item={itemForDelete}
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+        />
+      )}
     </div>
   );
 };
