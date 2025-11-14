@@ -9,20 +9,19 @@ export const itemRouter = router({
       z.object({
         name: z.string().min(1).max(100),
         description: z.string().max(255).optional(),
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
         price: z.number().min(0),
         imageUrl: z.url().optional(),
         categoryId: z.number(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { name, restaurantId, description, price, imageUrl, categoryId } =
-        input;
+      const { name, placeId, description, price, imageUrl, categoryId } = input;
 
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_items")
+        .from("place_items")
         .insert({
-          restaurant_id: restaurantId,
+          place_id: placeId,
           name,
           description,
           category_id: categoryId,
@@ -41,19 +40,19 @@ export const itemRouter = router({
 
       return data;
     }),
-  getAllByRestaurant: protectedProcedure
+  getAllByPlace: protectedProcedure
     .input(
       z.object({
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
       }),
     )
     .query(async ({ input }) => {
-      const { restaurantId } = input;
+      const { placeId } = input;
 
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_items")
-        .select("*, category:restaurant_categories(id,name)")
-        .eq("restaurant_id", restaurantId)
+        .from("place_items")
+        .select("*, category:place_categories(id,name)")
+        .eq("place_id", placeId)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -71,25 +70,18 @@ export const itemRouter = router({
         id: z.number(),
         name: z.string().min(1).max(100),
         description: z.string().max(255).optional(),
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
         price: z.number().min(0),
         imageUrl: z.url().optional(),
         categoryId: z.number(),
       }),
     )
     .mutation(async ({ input }) => {
-      const {
-        id,
-        name,
-        restaurantId,
-        description,
-        price,
-        imageUrl,
-        categoryId,
-      } = input;
+      const { id, name, placeId, description, price, imageUrl, categoryId } =
+        input;
 
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_items")
+        .from("place_items")
         .update({
           name,
           description,
@@ -99,7 +91,7 @@ export const itemRouter = router({
           updated_at: new Date().toISOString(),
         })
         .eq("id", id)
-        .eq("restaurant_id", restaurantId)
+        .eq("place_id", placeId)
         .select()
         .single();
 
@@ -121,7 +113,7 @@ export const itemRouter = router({
     .mutation(async ({ input }) => {
       const { id } = input;
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_items")
+        .from("place_items")
         .delete()
         .eq("id", id)
         .select()

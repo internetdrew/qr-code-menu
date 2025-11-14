@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { UtensilsCrossed } from "lucide-react";
+import { ScrollText } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { RestaurantSwitcher } from "@/components/RestaurantSwitcher";
+import { PlaceSwitcher } from "@/components/PlaceSwitcher";
 import {
   Sidebar,
   SidebarContent,
@@ -15,21 +15,21 @@ import {
 } from "@/components/ui/sidebar";
 import { Link } from "react-router";
 import { title } from "@/constants";
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { restaurants } = useRestaurantContext();
+  const { places } = usePlaceContext();
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenuButton asChild>
           <Link to="/" className="flex items-center">
-            <UtensilsCrossed className="size-4 text-pink-600" />
+            <ScrollText className="size-4 text-pink-600" />
             <span className="font-semibold">{title}</span>
           </Link>
         </SidebarMenuButton>
-        {restaurants.length > 0 && <RestaurantSwitcher />}
+        {places.length > 0 && <PlaceSwitcher />}
       </SidebarHeader>
       <SidebarContent>
         <NavMain />

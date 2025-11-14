@@ -2,7 +2,7 @@ import FormDialog from "@/components/dialogs/FormDialog";
 import CreateCategoryForm from "@/components/forms/CreateCategoryForm";
 import { Button } from "@/components/ui/button";
 
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,26 +36,26 @@ const ItemsPage = () => {
   );
   const [activeTab, setActiveTab] = useState<string>("all");
 
-  const { activeRestaurant } = useRestaurantContext();
+  const { activePlace } = usePlaceContext();
 
   const { data: categories } = useQuery(
-    trpc.category.getAllByRestaurant.queryOptions(
+    trpc.category.getAllByPlace.queryOptions(
       {
-        restaurantId: activeRestaurant?.id ?? "",
+        placeId: activePlace?.id ?? "",
       },
       {
-        enabled: !!activeRestaurant,
+        enabled: !!activePlace,
       },
     ),
   );
 
   const { data: items, isLoading: isLoadingItems } = useQuery(
-    trpc.item.getAllByRestaurant.queryOptions(
+    trpc.item.getAllByPlace.queryOptions(
       {
-        restaurantId: activeRestaurant?.id ?? "",
+        placeId: activePlace?.id ?? "",
       },
       {
-        enabled: !!activeRestaurant,
+        enabled: !!activePlace,
       },
     ),
   );
@@ -92,7 +92,7 @@ const ItemsPage = () => {
           className="ml-auto"
           onClick={() => setIsCategoryDialogOpen(true)}
         >
-          Add Item Category
+          Add Category
         </Button>
       </div>
       <div>
@@ -133,8 +133,8 @@ const ItemsPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <ScrollArea className="max-w-xl rounded-md border">
-                  <TabsList className="hidden lg:flex">
+                <ScrollArea className="max-w-xl">
+                  <TabsList className="mb-3 hidden lg:flex">
                     <TabsTrigger value="all">All</TabsTrigger>
                     {categories?.map((category) => (
                       <TabsTrigger
@@ -162,8 +162,8 @@ const ItemsPage = () => {
       </div>
 
       <FormDialog
-        title="Add Item Category"
-        description="Add a new item category to your menu. You can add items to this category later."
+        title="Add Category"
+        description="Add a new category to your menu. You can add items to this category later."
         isDialogOpen={isCategoryDialogOpen}
         setIsDialogOpen={setIsCategoryDialogOpen}
         formComponent={

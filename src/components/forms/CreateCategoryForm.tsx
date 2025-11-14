@@ -16,7 +16,7 @@ import { queryClient, trpc } from "@/utils/trpc";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 
 const formSchema = z.object({
   name: z
@@ -37,7 +37,7 @@ const formSchema = z.object({
 
 const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const createCategory = useMutation(trpc.category.create.mutationOptions());
-  const { activeRestaurant } = useRestaurantContext();
+  const { activePlace } = usePlaceContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +49,7 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await createCategory.mutateAsync(
-      { restaurantId: activeRestaurant?.id ?? "", ...values },
+      { placeId: activePlace?.id ?? "", ...values },
       {
         onError: (error) => {
           console.error("Failed to create category:", error);
@@ -59,7 +59,7 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
     );
 
     await queryClient.invalidateQueries({
-      queryKey: trpc.category.getAllByRestaurant.queryKey(),
+      queryKey: trpc.category.getAllByPlace.queryKey(),
     });
     toast.success("Category created successfully!");
     onSuccess();

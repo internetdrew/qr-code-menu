@@ -7,21 +7,21 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
-import { HandPlatter, ScrollText, Settings } from "lucide-react";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
+import { Box, ScrollText, Settings } from "lucide-react";
 import { Link } from "react-router";
 
 const navItems = [
-  { title: "Items", url: "/dashboard/items", icon: HandPlatter },
+  { title: "Items", url: "/dashboard/items", icon: Box },
   { title: "Menu", url: "/dashboard/menu", icon: ScrollText },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function NavMain() {
-  const { restaurants } = useRestaurantContext();
+  const { places } = usePlaceContext();
   const { setOpenMobile } = useSidebar();
 
-  if (!restaurants.length) {
+  if (!places.length) {
     return null;
   }
 

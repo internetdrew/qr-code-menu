@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "server";
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import {
   Select,
   SelectContent,
@@ -28,8 +28,7 @@ import {
 } from "../ui/select";
 import { type Item } from "@/components/table-columns/getItemColumns";
 
-type Categories =
-  inferRouterOutputs<AppRouter>["category"]["getAllByRestaurant"];
+type Categories = inferRouterOutputs<AppRouter>["category"]["getAllByPlace"];
 
 interface ItemFormProps {
   onSuccess: () => void;
@@ -64,7 +63,7 @@ const formSchema = z.object({
 const ItemForm = (props: ItemFormProps) => {
   const { onSuccess, categories, item } = props;
   const createItem = useMutation(trpc.item.create.mutationOptions());
-  const { activeRestaurant } = useRestaurantContext();
+  const { activePlace } = usePlaceContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,12 +86,12 @@ const ItemForm = (props: ItemFormProps) => {
           description: values.description,
           price: values.price,
           categoryId: values.categoryId,
-          restaurantId: activeRestaurant?.id || "",
+          placeId: activePlace?.id || "",
         },
         {
           onSuccess: () => {
             queryClient.invalidateQueries({
-              queryKey: trpc.item.getAllByRestaurant.queryKey(),
+              queryKey: trpc.item.getAllByPlace.queryKey(),
             });
             toast.success("Item updated successfully!");
             onSuccess();
@@ -113,12 +112,12 @@ const ItemForm = (props: ItemFormProps) => {
         description: values.description,
         price: values.price,
         categoryId: values.categoryId,
-        restaurantId: activeRestaurant?.id || "",
+        placeId: activePlace?.id || "",
       },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: trpc.item.getAllByRestaurant.queryKey(),
+            queryKey: trpc.item.getAllByPlace.queryKey(),
           });
           toast.success("Item created successfully!");
           onSuccess();

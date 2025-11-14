@@ -36,7 +36,7 @@ const DeleteItemAlertDialog = ({
           onOpenChange(false);
           toast.success(`${item.name} has been deleted.`);
           queryClient.invalidateQueries({
-            queryKey: trpc.item.getAllByRestaurant.queryKey(),
+            queryKey: trpc.item.getAllByPlace.queryKey(),
           });
         },
         onError: () => {

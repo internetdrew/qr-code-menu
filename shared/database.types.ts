@@ -14,68 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      qr_codes: {
-        Row: {
-          created_at: string
-          id: number
-          public_url: string
-          restaurant_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          public_url: string
-          restaurant_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          public_url?: string
-          restaurant_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "restaurant_qr_codes_restaurant_id_fkey"
-            columns: ["restaurant_id"]
-            isOneToOne: false
-            referencedRelation: "restaurants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      restaurant_categories: {
+      place_categories: {
         Row: {
           created_at: string
           description: string | null
           id: number
           name: string
-          restaurant_id: string
+          order: number | null
+          place_id: string
         }
         Insert: {
           created_at?: string
           description?: string | null
           id?: number
           name: string
-          restaurant_id: string
+          order?: number | null
+          place_id: string
         }
         Update: {
           created_at?: string
           description?: string | null
           id?: number
           name?: string
-          restaurant_id?: string
+          order?: number | null
+          place_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "restaurant_categories_restaurant_id_fkey"
-            columns: ["restaurant_id"]
+            foreignKeyName: "place_categories_place_id_fkey"
+            columns: ["place_id"]
             isOneToOne: false
-            referencedRelation: "restaurants"
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
         ]
       }
-      restaurant_items: {
+      place_items: {
         Row: {
           category_id: number
           created_at: string
@@ -83,8 +57,8 @@ export type Database = {
           id: number
           image_url: string | null
           name: string
+          place_id: string
           price: number
-          restaurant_id: string
           updated_at: string
         }
         Insert: {
@@ -94,8 +68,8 @@ export type Database = {
           id?: number
           image_url?: string | null
           name: string
+          place_id: string
           price: number
-          restaurant_id: string
           updated_at?: string
         }
         Update: {
@@ -105,28 +79,28 @@ export type Database = {
           id?: number
           image_url?: string | null
           name?: string
+          place_id?: string
           price?: number
-          restaurant_id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "restaurant_items_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "place_items_place_id_fkey"
+            columns: ["place_id"]
             isOneToOne: false
-            referencedRelation: "restaurant_categories"
+            referencedRelation: "places"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "restaurant_items_restaurant_id_fkey"
-            columns: ["restaurant_id"]
+            foreignKeyName: "restaurant_items_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
-            referencedRelation: "restaurants"
+            referencedRelation: "place_categories"
             referencedColumns: ["id"]
           },
         ]
       }
-      restaurants: {
+      places: {
         Row: {
           created_at: string
           id: string
@@ -146,6 +120,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      qr_codes: {
+        Row: {
+          created_at: string
+          id: number
+          place_id: string
+          public_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          place_id: string
+          public_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          place_id?: string
+          public_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qr_codes_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

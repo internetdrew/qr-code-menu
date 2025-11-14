@@ -7,18 +7,18 @@ export const categoryRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
         name: z.string().min(1).max(100),
         description: z.string().max(255).optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { name, restaurantId, description } = input;
+      const { name, placeId, description } = input;
 
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_categories")
+        .from("place_categories")
         .insert({
-          restaurant_id: restaurantId,
+          place_id: placeId,
           name,
           description,
         })
@@ -34,19 +34,18 @@ export const categoryRouter = router({
 
       return data;
     }),
-  getAllByRestaurant: protectedProcedure
+  getAllByPlace: protectedProcedure
     .input(
       z.object({
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
       }),
     )
     .query(async ({ input }) => {
-      const { restaurantId } = input;
-
+      const { placeId } = input;
       const { data, error } = await supabaseAdminClient
-        .from("restaurant_categories")
-        .select("*")
-        .eq("restaurant_id", restaurantId)
+        .from("place_categories")
+        .select("*, items:place_items(*)")
+        .eq("place_id", placeId)
         .order("created_at", { ascending: true });
 
       if (error) {

@@ -1,4 +1,4 @@
-import { ChevronsUpDown, HandPlatter, Plus } from "lucide-react";
+import { ChevronsUpDown, MapPin, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +13,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 
-export function RestaurantSwitcher() {
+export function PlaceSwitcher() {
   const { isMobile } = useSidebar();
-  const { restaurants, activeRestaurant, setActiveRestaurant } =
-    useRestaurantContext();
+  const { places, activePlace, setActivePlace } = usePlaceContext();
 
   return (
     <SidebarMenu>
@@ -30,14 +29,14 @@ export function RestaurantSwitcher() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <HandPlatter className="size-4" />
+                <MapPin className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {activeRestaurant?.name ?? "No restaurant"}
+                  {activePlace?.name ?? "No place selected"}
                 </span>
                 <span className="truncate text-xs">
-                  {/* {activeRestaurant?.street_address} */}
+                  {/* {activePlace?.street_address} */}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
@@ -50,15 +49,15 @@ export function RestaurantSwitcher() {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Restaurants
+              Places
             </DropdownMenuLabel>
-            {restaurants.map((restaurant) => (
+            {places.map((place) => (
               <DropdownMenuItem
-                key={restaurant.id}
-                onClick={() => setActiveRestaurant(restaurant)}
+                key={place.id}
+                onClick={() => setActivePlace(place)}
                 className="gap-2 p-2"
               >
-                {restaurant.name}
+                {place.name}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
@@ -66,9 +65,7 @@ export function RestaurantSwitcher() {
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>
-              <div className="text-muted-foreground font-medium">
-                Add restaurant
-              </div>
+              <div className="text-muted-foreground font-medium">Add Place</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

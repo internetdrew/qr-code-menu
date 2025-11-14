@@ -8,15 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu.tsx";
 import { Button } from "../ui/button.tsx";
-import { CircleSlash, MoreHorizontal, NotepadText } from "lucide-react";
+import { MoreHorizontal, NotepadText } from "lucide-react";
 import { formatDistance } from "date-fns";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../server";
-// import { Badge } from "../ui/badge.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover.tsx";
+import capitalize from "@/utils/capitalize.ts";
 
 export type Item =
-  inferRouterOutputs<AppRouter>["item"]["getAllByRestaurant"][number];
+  inferRouterOutputs<AppRouter>["item"]["getAllByPlace"][number];
 
 export function getItemColumns(
   handleEditButtonClick: (item: Item) => void,
@@ -25,32 +25,22 @@ export function getItemColumns(
   return [
     {
       accessorKey: "name",
-      header: () => <div className="text-left">Name</div>,
+      header: () => <div>Name</div>,
       cell: ({ row }) => {
+        const description = row.original.description;
+
         return (
-          <div className="text-left font-mono text-sm">
-            {row.getValue("name")}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "description",
-      header: () => <div className="text-center">Description</div>,
-      cell: ({ row }) => {
-        return (
-          <div className="text-center">
-            {row.getValue("description") ? (
+          <div className="flex items-center gap-2">
+            <div>{row.getValue("name")}</div>
+            {description && (
               <Popover>
                 <PopoverTrigger className="cursor-pointer">
-                  <NotepadText className="mx-auto size-4" />
+                  <NotepadText className="size-4" />
                 </PopoverTrigger>
                 <PopoverContent className="text-sm">
-                  {row.getValue("description")}
+                  {description}
                 </PopoverContent>
               </Popover>
-            ) : (
-              <CircleSlash className="text-muted-foreground mx-auto size-4" />
             )}
           </div>
         );
@@ -58,39 +48,30 @@ export function getItemColumns(
     },
     {
       accessorKey: "category",
-      header: () => <div className="text-center">Category</div>,
+      header: () => <div>Category</div>,
       cell: ({ row }) => {
         const category = row.original.category;
-        return (
-          <div className="text-left font-mono text-sm">{category?.name}</div>
-        );
+        return <div className="text-sm">{category?.name}</div>;
       },
     },
     {
       accessorKey: "price",
-      header: () => <div className="text-center">Price</div>,
+      header: () => <div>Price</div>,
       cell: ({ row }) => {
-        return (
-          <div className="text-left font-mono text-sm">
-            {row.getValue("price")}
-          </div>
-        );
+        const price = row.original.price;
+        return <div>${price.toFixed(2)}</div>;
       },
     },
     {
       accessorKey: "updated_at",
-      header: () => <div className="text-center">Last Update</div>,
+      header: () => <div>Last Update</div>,
       cell: ({ row }) => {
         const lastUpdatedAt = row.original.updated_at;
         const relativeTime = formatDistance(lastUpdatedAt, new Date(), {
           addSuffix: true,
         });
 
-        return (
-          <div className="mx-auto max-w-40 truncate text-center font-mono text-sm">
-            {relativeTime}
-          </div>
-        );
+        return <div>{capitalize(relativeTime)}</div>;
       },
     },
     {
@@ -104,7 +85,7 @@ export function getItemColumns(
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="font-mono">
+            <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
