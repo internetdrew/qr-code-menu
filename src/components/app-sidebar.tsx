@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Menu } from "lucide-react";
+import { ScrollText } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { PlaceSwitcher } from "@/components/PlaceSwitcher";
@@ -25,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenuButton asChild>
           <Link to="/" className="flex items-center">
-            <Menu className="size-4 text-pink-600" />
+            <ScrollText className="size-4 text-pink-600" />
             <span className="font-semibold">{title}</span>
           </Link>
         </SidebarMenuButton>
