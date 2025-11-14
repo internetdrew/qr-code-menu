@@ -2,7 +2,7 @@ import FormDialog from "@/components/dialogs/FormDialog";
 import CreateCategoryForm from "@/components/forms/CreateCategoryForm";
 import { Button } from "@/components/ui/button";
 
-import { useRestaurantContext } from "@/contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,26 +36,26 @@ const ItemsPage = () => {
   );
   const [activeTab, setActiveTab] = useState<string>("all");
 
-  const { activeRestaurant } = useRestaurantContext();
+  const { activePlace } = usePlaceContext();
 
   const { data: categories } = useQuery(
-    trpc.category.getAllByRestaurant.queryOptions(
+    trpc.category.getAllByPlace.queryOptions(
       {
-        restaurantId: activeRestaurant?.id ?? "",
+        placeId: activePlace?.id ?? "",
       },
       {
-        enabled: !!activeRestaurant,
+        enabled: !!activePlace,
       },
     ),
   );
 
   const { data: items, isLoading: isLoadingItems } = useQuery(
-    trpc.item.getAllByRestaurant.queryOptions(
+    trpc.item.getAllByPlace.queryOptions(
       {
-        restaurantId: activeRestaurant?.id ?? "",
+        placeId: activePlace?.id ?? "",
       },
       {
-        enabled: !!activeRestaurant,
+        enabled: !!activePlace,
       },
     ),
   );

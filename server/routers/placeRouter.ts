@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc";
 import { supabaseAdminClient } from "../supabase";
 
-export const restaurantRouter = router({
+export const placeRouter = router({
   create: protectedProcedure
     .input(
       z.object({
@@ -11,8 +11,8 @@ export const restaurantRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const { data: restaurant, error } = await supabaseAdminClient
-        .from("restaurants")
+      const { data: place, error } = await supabaseAdminClient
+        .from("places")
         .insert({
           name: input.name,
           user_id: ctx.user.id,
@@ -27,12 +27,10 @@ export const restaurantRouter = router({
         });
       }
 
-      return restaurant;
+      return place;
     }),
   getAll: protectedProcedure.query(async () => {
-    const { data, error } = await supabaseAdminClient
-      .from("restaurants")
-      .select();
+    const { data, error } = await supabaseAdminClient.from("places").select();
 
     if (error) {
       throw new TRPCError({
@@ -51,7 +49,7 @@ export const restaurantRouter = router({
     )
     .mutation(async ({ input }) => {
       const { data, error } = await supabaseAdminClient
-        .from("restaurants")
+        .from("places")
         .delete()
         .eq("id", input.id)
         .select()

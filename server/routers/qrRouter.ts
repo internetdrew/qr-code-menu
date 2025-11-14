@@ -9,26 +9,23 @@ export const qrCodeRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        restaurantId: z.uuid(),
+        placeId: z.uuid(),
         baseUrl: z.url(),
       }),
     )
     .mutation(async ({ input }) => {
-      const { baseUrl, restaurantId } = input;
+      const { baseUrl, placeId } = input;
 
-      const qrCodeDataUrl = await QRCode.toDataURL(
-        `${baseUrl}/r/${restaurantId}`,
-        {
-          width: 400,
-          margin: 2,
-          color: { dark: "#000000", light: "#FFFFFF" },
-        },
-      );
+      const qrCodeDataUrl = await QRCode.toDataURL(`${baseUrl}/r/${placeId}`, {
+        width: 400,
+        margin: 2,
+        color: { dark: "#000000", light: "#FFFFFF" },
+      });
 
       const base64Data = qrCodeDataUrl.split(",")[1];
       const buffer = Buffer.from(base64Data, "base64");
 
-      const filePath = generateQRFilePath(restaurantId);
+      const filePath = generateQRFilePath(placeId);
 
       const { data: uploadData, error: uploadError } =
         await supabaseAdminClient.storage
@@ -52,7 +49,7 @@ export const qrCodeRouter = router({
 
       const { error: insertError } = await supabaseAdminClient
         .from("qr_codes")
-        .insert({ restaurant_id: restaurantId, public_url: publicUrl });
+        .insert({ place_id: placeId, public_url: publicUrl });
 
       if (insertError) {
         throw new TRPCError({

@@ -22,13 +22,9 @@ const formSchema = z.object({
   }),
 });
 
-const CreateRestaurantForm = ({ onSuccess }: { onSuccess: () => void }) => {
-  const createRestaurant = useMutation(
-    trpc.restaurant.create.mutationOptions(),
-  );
-  const deleteRestaurant = useMutation(
-    trpc.restaurant.delete.mutationOptions(),
-  );
+const CreatePlaceForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  const createPlace = useMutation(trpc.place.create.mutationOptions());
+  const deletePlace = useMutation(trpc.place.delete.mutationOptions());
   const createQRCode = useMutation(trpc.qr.create.mutationOptions());
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,33 +35,33 @@ const CreateRestaurantForm = ({ onSuccess }: { onSuccess: () => void }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const restaurant = await createRestaurant.mutateAsync(
+    const place = await createPlace.mutateAsync(
       { ...values },
       {
         onError: (error) => {
-          console.error("Failed to create restaurant:", error);
-          toast.error("Failed to create restaurant. Please try again.");
+          console.error("Failed to create place:", error);
+          toast.error("Failed to create place. Please try again.");
         },
       },
     );
     await createQRCode.mutateAsync(
       {
-        restaurantId: restaurant.id,
+        placeId: place.id,
         baseUrl: window.location.origin,
       },
       {
         onError: async (error) => {
           console.error("Failed to create QR code:", error);
-          await deleteRestaurant.mutateAsync({ id: restaurant.id });
-          toast.error("Failed to create restaurant. Please try again.");
+          await deletePlace.mutateAsync({ id: place.id });
+          toast.error("Failed to create place. Please try again.");
         },
       },
     );
 
     await queryClient.invalidateQueries({
-      queryKey: trpc.restaurant.getAll.queryKey(),
+      queryKey: trpc.place.getAll.queryKey(),
     });
-    toast.success("Restaurant created successfully!");
+    toast.success("Place created successfully!");
     onSuccess();
   };
 
@@ -98,4 +94,4 @@ const CreateRestaurantForm = ({ onSuccess }: { onSuccess: () => void }) => {
   );
 };
 
-export default CreateRestaurantForm;
+export default CreatePlaceForm;

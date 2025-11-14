@@ -8,7 +8,7 @@ import compression from "compression";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { createServerSupabaseClient } from "./supabase";
-import { restaurantRouter } from "./routers/restaurantRouter";
+import { placeRouter } from "./routers/placeRouter";
 import { qrCodeRouter } from "./routers/qrRouter";
 import { categoryRouter } from "./routers/categoryRouter";
 import { itemRouter } from "./routers/itemRouter";
@@ -16,7 +16,7 @@ import { itemRouter } from "./routers/itemRouter";
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 export const appRouter = router({
-  restaurant: restaurantRouter,
+  place: placeRouter,
   qr: qrCodeRouter,
   category: categoryRouter,
   item: itemRouter,

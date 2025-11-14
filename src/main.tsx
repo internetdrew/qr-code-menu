@@ -8,8 +8,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import Login from "./routes/Login.tsx";
 import { AuthProvider } from "./contexts/auth.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
-import { RestaurantProvider } from "./contexts/ActiveRestaurantContext.tsx";
+import { PlaceProvider } from "./contexts/ActivePlaceContext.tsx";
 import ItemsPage from "./routes/ItemsPage.tsx";
+import Menu from "./routes/Menu.tsx";
 
 const router = createBrowserRouter([
   {
@@ -45,7 +46,7 @@ const router = createBrowserRouter([
           },
           {
             path: "menu",
-            element: <ItemsPage />,
+            element: <Menu />,
           },
           {
             path: "settings",

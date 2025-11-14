@@ -15,7 +15,7 @@ import {
   BreadcrumbSeparator,
 } from "./components/ui/breadcrumb";
 import { Toaster } from "./components/ui/sonner";
-import { useRestaurantContext } from "./contexts/ActiveRestaurantContext";
+import { usePlaceContext } from "./contexts/ActivePlaceContext";
 import {
   Card,
   CardDescription,
@@ -27,10 +27,10 @@ import { Button } from "./components/ui/button";
 import { useState } from "react";
 import { Spinner } from "./components/ui/spinner";
 import FormDialog from "./components/dialogs/FormDialog";
-import CreateRestaurantForm from "./components/forms/CreateRestaurantForm";
+import CreatePlaceForm from "./components/forms/CreatePlaceForm";
 
 function App() {
-  const { restaurants, activeRestaurant, loading } = useRestaurantContext();
+  const { places, activePlace, loading } = usePlaceContext();
   const location = useLocation();
 
   const getRouteName = () => {
@@ -59,7 +59,7 @@ function App() {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link to="/dashboard">
-                      {activeRestaurant?.name || "No Restaurant"}
+                      {activePlace?.name || "No Place Selected"}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -74,10 +74,10 @@ function App() {
         <div className="p-4 pt-0">
           {loading ? (
             <Spinner className="mx-auto mt-36 size-6 text-pink-600" />
-          ) : restaurants.length > 0 ? (
+          ) : places.length > 0 ? (
             <Outlet />
           ) : (
-            <CreateRestaurantCard />
+            <CreatePlaceCard />
           )}
           <Toaster />
         </div>
@@ -88,31 +88,31 @@ function App() {
 
 export default App;
 
-const CreateRestaurantCard = () => {
+const CreatePlaceCard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
       <Card className="mx-auto mt-28 max-w-sm text-center">
         <CardHeader className="text-center">
-          <CardTitle>No Restaurants Found</CardTitle>
+          <CardTitle>No Places Found</CardTitle>
           <CardDescription>
-            Get started by creating your first restaurant.
+            Get started by creating your first place.
           </CardDescription>
         </CardHeader>
         <CardFooter>
           <Button className="w-full" onClick={() => setIsDialogOpen(true)}>
-            Create Restaurant
+            Create Place
           </Button>
         </CardFooter>
       </Card>
       <FormDialog
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
-        title="Create Restaurant"
-        description="Fill out the form below to create a new restaurant."
+        title="Create Place"
+        description="Fill out the form below to create a new place."
         formComponent={
-          <CreateRestaurantForm onSuccess={() => setIsDialogOpen(false)} />
+          <CreatePlaceForm onSuccess={() => setIsDialogOpen(false)} />
         }
       />
     </>
