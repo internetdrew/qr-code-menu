@@ -13,6 +13,7 @@ import { formatDistance } from "date-fns";
 import type { inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "../../../server";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover.tsx";
+import capitalize from "@/utils/capitalize.ts";
 
 export type Item =
   inferRouterOutputs<AppRouter>["item"]["getAllByPlace"][number];
@@ -57,7 +58,8 @@ export function getItemColumns(
       accessorKey: "price",
       header: () => <div>Price</div>,
       cell: ({ row }) => {
-        return <div>{row.getValue("price")}</div>;
+        const price = row.original.price;
+        return <div>${price.toFixed(2)}</div>;
       },
     },
     {
@@ -69,7 +71,7 @@ export function getItemColumns(
           addSuffix: true,
         });
 
-        return <div>{relativeTime}</div>;
+        return <div>{capitalize(relativeTime)}</div>;
       },
     },
     {
