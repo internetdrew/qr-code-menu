@@ -49,7 +49,7 @@ const Menu = () => {
       <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {categories?.map((category) => (
           <li key={category.id}>
-            <Card className="flex h-full flex-col">
+            <Card className="bg-accent flex h-full flex-col">
               <CardHeader>
                 <CardTitle>{category.name}</CardTitle>
                 <CardDescription>{category.description}</CardDescription>
@@ -57,7 +57,12 @@ const Menu = () => {
               <CardContent>
                 <ItemGroup className="space-y-4 text-sm">
                   {category.items.map((item) => (
-                    <Item id={item.id.toString()} variant="outline" size="sm">
+                    <Item
+                      id={item.id.toString()}
+                      variant="outline"
+                      size="sm"
+                      className="bg-white"
+                    >
                       <div className="flex w-full justify-between">
                         <span className="font-semibold">{item.name}</span>
                         <span className="font-medium">

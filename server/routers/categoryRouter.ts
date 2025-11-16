@@ -57,4 +57,59 @@ export const categoryRouter = router({
 
       return data;
     }),
+  update: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+        name: z.string().min(1).max(100),
+        description: z.string().max(255).optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { categoryId, name, description } = input;
+
+      const { data, error: updateCategoryError } = await supabaseAdminClient
+        .from("place_categories")
+        .update({
+          name,
+          description,
+        })
+        .eq("id", categoryId)
+        .select()
+        .single();
+
+      if (updateCategoryError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to update category: ${updateCategoryError.message}`,
+        });
+      }
+
+      return data;
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        categoryId: z.number(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const { categoryId } = input;
+
+      const { data, error: deleteCategoryError } = await supabaseAdminClient
+        .from("place_categories")
+        .delete()
+        .eq("id", categoryId)
+        .select()
+        .single();
+
+      if (deleteCategoryError) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to delete category: ${deleteCategoryError.message}`,
+        });
+      }
+
+      return data;
+    }),
 });

@@ -1,7 +1,5 @@
 import FormDialog from "@/components/dialogs/FormDialog";
-import CreateCategoryForm from "@/components/forms/CreateCategoryForm";
 import { Button } from "@/components/ui/button";
-
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
@@ -23,9 +21,9 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ItemForm from "@/components/forms/ItemForm";
 import DeleteItemAlertDialog from "@/components/dialogs/DeleteItemAlertDialog";
+import ManageCategoriesDropdown from "@/components/ManageCategoriesDropdown";
 
 const MenuPage = () => {
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemForEdit, setItemForEdit] = useState<GetItemColumnsItem | null>(
@@ -88,12 +86,7 @@ const MenuPage = () => {
   return (
     <div>
       <div className="flex">
-        <Button
-          className="ml-auto"
-          onClick={() => setIsCategoryDialogOpen(true)}
-        >
-          Add Category
-        </Button>
+        <ManageCategoriesDropdown />
       </div>
       <div>
         {categories?.length === 0 ? (
@@ -134,7 +127,7 @@ const MenuPage = () => {
                   </SelectContent>
                 </Select>
                 <ScrollArea className="max-w-xl">
-                  <TabsList className="mb-3 hidden lg:flex">
+                  <TabsList className="mb-2.5 hidden lg:flex">
                     <TabsTrigger value="all">All</TabsTrigger>
                     {categories?.map((category) => (
                       <TabsTrigger
@@ -161,17 +154,6 @@ const MenuPage = () => {
         )}
       </div>
 
-      <FormDialog
-        title="Add Category"
-        description="Add a new category to your menu. You can add items to this category later."
-        isDialogOpen={isCategoryDialogOpen}
-        setIsDialogOpen={setIsCategoryDialogOpen}
-        formComponent={
-          <CreateCategoryForm
-            onSuccess={() => setIsCategoryDialogOpen(false)}
-          />
-        }
-      />
       {categories && (
         <FormDialog
           title={itemForEdit ? `Edit ${itemForEdit.name}` : "Add an Item"}

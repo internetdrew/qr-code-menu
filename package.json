@@ -13,6 +13,7 @@
     "gen:types": "dotenv -e .env -- cross-env supabase gen types typescript --project-id=$SUPABASE_PROJECT_ID > shared/database.types.ts"
   },
   "dependencies": {
+    "@fontsource-variable/geist": "^5.2.8",
     "@fontsource-variable/geist-mono": "^5.2.7",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
