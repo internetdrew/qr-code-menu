@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import type { AppRouter } from "../../server";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type CategoryIndex =
   inferRouterOutputs<AppRouter>["category"]["getAllSortedByIndex"][number];
@@ -70,7 +71,7 @@ export const SettingsPage = () => {
     ),
   );
 
-  const { data: indexedItems } = useQuery(
+  const { data: indexedItems, isLoading: isLoadingItems } = useQuery(
     trpc.item.getAllForCategorySortedByIndex.queryOptions(
       {
         categoryId: chosenCategory?.id ?? null,
@@ -228,12 +229,16 @@ export const SettingsPage = () => {
                   items={itemIndexes.map((item) => item.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {itemIndexes.map((itemIndex) => (
-                    <SortableMenuItem
-                      key={itemIndex.id}
-                      itemIndex={itemIndex}
-                    />
-                  ))}
+                  {isLoadingItems
+                    ? Array.from({ length: 5 }).map((_, index) => (
+                        <Skeleton key={index} className="h-10" />
+                      ))
+                    : itemIndexes.map((itemIndex) => (
+                        <SortableMenuItem
+                          key={itemIndex.id}
+                          itemIndex={itemIndex}
+                        />
+                      ))}
                 </SortableContext>
               </DndContext>
             </CardContent>
