@@ -15,38 +15,53 @@ import {
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { queryClient, trpc } from "@/utils/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "./ui/alert-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppRouter } from "../../server";
 import type { inferRouterOutputs } from "@trpc/server";
 import { toast } from "sonner";
 import FormDialog from "./dialogs/FormDialog";
-import CategoryForm from "./forms/CreateCategoryForm";
+import CategoryForm from "./forms/CategoryForm";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
+import DeleteCategoryAlertDialog from "./dialogs/DeleteCategoryAlertDialog";
 
-export type Category =
-  inferRouterOutputs<AppRouter>["category"]["getAllByPlace"][number];
+export type CategoryIndex =
+  inferRouterOutputs<AppRouter>["category"]["getAllSortedByIndex"][number];
 
 const ManageCategoriesDropdown = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
-    null,
-  );
+  const [categoryToDelete, setCategoryToDelete] = useState<
+    CategoryIndex["category"] | null
+  >(null);
   const [renderCategoryDialog, setRenderCategoryDialog] = useState(false);
-  const [categoryForEdit, setCategoryForEdit] = useState<Category | null>(null);
+  const [categoryForEdit, setCategoryForEdit] = useState<
+    CategoryIndex["category"] | null
+  >(null);
+  const [categoryIndexes, setCategoryIndexes] = useState<CategoryIndex[]>([]);
+  const updateCategoryOrderMutation = useMutation(
+    trpc.category.updateOrder.mutationOptions(),
+  );
 
   const { activePlace } = usePlaceContext();
 
-  const { data: categories } = useQuery(
-    trpc.category.getAllByPlace.queryOptions(
+  const { data: indexedCategories } = useQuery(
+    trpc.category.getAllSortedByIndex.queryOptions(
       {
         placeId: activePlace?.id ?? "",
       },
@@ -56,9 +71,64 @@ const ManageCategoriesDropdown = () => {
     ),
   );
 
-  const promptCategoryDelete = (category: Category) => {
+  useEffect(() => {
+    if (indexedCategories) {
+      setCategoryIndexes(indexedCategories);
+    }
+  }, [indexedCategories]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setCategoryIndexes((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+
+        updateCategoryOrderMutation.mutateAsync(
+          {
+            placeId: activePlace!.id,
+            newCategoryOrder: newOrder.map((catIndex) => ({
+              indexId: catIndex.id,
+              categoryId: catIndex.category.id,
+            })),
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({
+                queryKey: trpc.category.getAllSortedByIndex.queryKey(),
+              });
+              toast.success("Category order updated.");
+            },
+            onError: (error) => {
+              console.error("Failed to update category order:", error);
+              toast.error("Failed to update category order. Please try again.");
+            },
+          },
+        );
+
+        return newOrder;
+      });
+    }
+  };
+
+  const promptCategoryDelete = (category: CategoryIndex["category"]) => {
     setCategoryToDelete(category);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleEdit = (category: CategoryIndex["category"]) => {
+    setCategoryForEdit(category);
+    setRenderCategoryDialog(true);
   };
 
   return (
@@ -70,30 +140,27 @@ const ManageCategoriesDropdown = () => {
         <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel>My Categories</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            {categories?.map((category) => (
-              <DropdownMenuSub key={category.id}>
-                <DropdownMenuSubTrigger>{category.name}</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setCategoryForEdit(category);
-                        setRenderCategoryDialog(true);
-                      }}
-                    >
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => promptCategoryDelete(category)}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            ))}
-          </DropdownMenuGroup>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={categoryIndexes.map((c) => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <DropdownMenuGroup>
+                {categoryIndexes?.map((index) => (
+                  <SortableCategoryItem
+                    key={index.id}
+                    categoryIndex={index}
+                    onEdit={handleEdit}
+                    onDelete={promptCategoryDelete}
+                  />
+                ))}
+              </DropdownMenuGroup>
+            </SortableContext>
+          </DndContext>
           <DropdownMenuSeparator />
           <Button
             variant="ghost"
@@ -138,62 +205,54 @@ const ManageCategoriesDropdown = () => {
 
 export default ManageCategoriesDropdown;
 
-const DeleteCategoryAlertDialog = ({
-  category,
-  open,
-  onOpenChange,
+const SortableCategoryItem = ({
+  categoryIndex,
+  onEdit,
+  onDelete,
 }: {
-  category: Category | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  categoryIndex: CategoryIndex;
+  onEdit: (category: CategoryIndex["category"]) => void;
+  onDelete: (category: CategoryIndex["category"]) => void;
 }) => {
-  const deleteCategoryMutation = useMutation(
-    trpc.category.delete.mutationOptions(),
-  );
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: categoryIndex.id });
 
-  const deleteCategory = async () => {
-    if (category) {
-      await deleteCategoryMutation.mutateAsync(
-        { categoryId: category.id },
-        {
-          onSuccess: () => {
-            toast.success(`${category.name} has been deleted.`);
-            queryClient.invalidateQueries({
-              queryKey: trpc.category.getAllByPlace.queryKey(),
-            });
-            onOpenChange(false);
-          },
-          onError: (error) => {
-            console.error("Failed to delete category:", error);
-            toast.error(`Failed to delete ${category.name}. Please try again.`);
-          },
-        },
-      );
-    }
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            Are you sure you want to delete the{" "}
-            <span className="text-pink-600">{category?.name}</span> category?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete{" "}
-            <span className="font-semibold">{category?.name}</span> and all of
-            its associated items. If you just want to change the name, please
-            use the <span className="font-semibold">Edit</span> option instead.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteCategory}>
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <div ref={setNodeRef} style={style} className="flex items-center">
+      <button
+        className="cursor-grab px-1 active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="text-muted-foreground h-4 w-4" />
+      </button>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger className="flex-1">
+          {categoryIndex.category.name}
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem onClick={() => onEdit(categoryIndex.category)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(categoryIndex.category)}>
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
+    </div>
   );
 };

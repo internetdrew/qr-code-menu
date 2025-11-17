@@ -79,11 +79,9 @@ export const categoryRouter = router({
       const { placeId } = input;
       const { data, error } = await supabaseAdminClient
         .from("category_sort_indexes")
-        .select(`*, category:place_categories(*)`)
+        .select(`*, category:place_categories(*, place_items(*))`)
         .eq("place_id", placeId)
         .order("order_index", { ascending: true });
-
-      console.log("Fetched indexed categories:", data);
 
       if (error) {
         throw new TRPCError({

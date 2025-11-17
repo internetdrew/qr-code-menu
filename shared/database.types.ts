@@ -58,18 +58,21 @@ export type Database = {
           category_id: number
           created_at: string
           id: number
+          item_id: number
           order_index: number | null
         }
         Insert: {
           category_id: number
           created_at?: string
           id?: number
+          item_id: number
           order_index?: number | null
         }
         Update: {
           category_id?: number
           created_at?: string
           id?: number
+          item_id?: number
           order_index?: number | null
         }
         Relationships: [
@@ -78,6 +81,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "place_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_sort_indexes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "place_items"
             referencedColumns: ["id"]
           },
         ]
@@ -220,16 +230,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_category_with_index: {
-        Args: { p_description?: string; p_name: string; p_place_id: string }
-        Returns: {
-          category_id: number
-          description: string
-          name: string
-          order_index: number
-          place_id: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
