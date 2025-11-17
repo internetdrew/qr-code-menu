@@ -1,7 +1,5 @@
 import FormDialog from "@/components/dialogs/FormDialog";
-import CreateCategoryForm from "@/components/forms/CreateCategoryForm";
 import { Button } from "@/components/ui/button";
-
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
@@ -23,9 +21,9 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ItemForm from "@/components/forms/ItemForm";
 import DeleteItemAlertDialog from "@/components/dialogs/DeleteItemAlertDialog";
+import ManageCategoriesDropdown from "@/components/ManageCategoriesDropdown";
 
-const ItemsPage = () => {
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+export const MenuPage = () => {
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemForEdit, setItemForEdit] = useState<GetItemColumnsItem | null>(
@@ -38,8 +36,8 @@ const ItemsPage = () => {
 
   const { activePlace } = usePlaceContext();
 
-  const { data: categories } = useQuery(
-    trpc.category.getAllByPlace.queryOptions(
+  const { data: categoryIndexes } = useQuery(
+    trpc.category.getAllSortedByIndex.queryOptions(
       {
         placeId: activePlace?.id ?? "",
       },
@@ -88,18 +86,12 @@ const ItemsPage = () => {
   return (
     <div>
       <div className="flex">
-        <Button
-          className="ml-auto"
-          onClick={() => setIsCategoryDialogOpen(true)}
-        >
-          Add Category
-        </Button>
+        <ManageCategoriesDropdown />
       </div>
       <div>
-        {categories?.length === 0 ? (
+        {categoryIndexes?.length === 0 ? (
           <p className="text-accent-foreground mt-48 text-center">
-            No categories found. Please add a category to start managing your
-            items.
+            Create a category to start adding items to your menu.
           </p>
         ) : (
           <>
@@ -123,25 +115,25 @@ const ItemsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Items</SelectItem>
-                    {categories?.map((category) => (
+                    {categoryIndexes?.map((indexedCategory) => (
                       <SelectItem
-                        key={category.id}
-                        value={category.id.toString()}
+                        key={indexedCategory.category.id}
+                        value={indexedCategory.category.id.toString()}
                       >
-                        {category.name}
+                        {indexedCategory.category.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <ScrollArea className="max-w-xl">
-                  <TabsList className="mb-3 hidden lg:flex">
+                  <TabsList className="mb-2.5 hidden lg:flex">
                     <TabsTrigger value="all">All</TabsTrigger>
-                    {categories?.map((category) => (
+                    {categoryIndexes?.map((indexedCategory) => (
                       <TabsTrigger
-                        key={category.id}
-                        value={category.id.toString()}
+                        key={indexedCategory.category.id}
+                        value={indexedCategory.category.id.toString()}
                       >
-                        {category.name}
+                        {indexedCategory.category.name}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -161,18 +153,7 @@ const ItemsPage = () => {
         )}
       </div>
 
-      <FormDialog
-        title="Add Category"
-        description="Add a new category to your menu. You can add items to this category later."
-        isDialogOpen={isCategoryDialogOpen}
-        setIsDialogOpen={setIsCategoryDialogOpen}
-        formComponent={
-          <CreateCategoryForm
-            onSuccess={() => setIsCategoryDialogOpen(false)}
-          />
-        }
-      />
-      {categories && (
+      {categoryIndexes && (
         <FormDialog
           title={itemForEdit ? `Edit ${itemForEdit.name}` : "Add an Item"}
           description="Add a new item to your menu and assign it to a category."
@@ -181,7 +162,7 @@ const ItemsPage = () => {
           formComponent={
             <ItemForm
               item={itemForEdit}
-              categories={categories}
+              categories={categoryIndexes?.map((ic) => ic.category) ?? []}
               onSuccess={() => setIsItemDialogOpen(false)}
             />
           }
@@ -198,5 +179,3 @@ const ItemsPage = () => {
     </div>
   );
 };
-
-export default ItemsPage;

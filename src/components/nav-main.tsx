@@ -8,11 +8,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
-import { Box, ScrollText, Settings } from "lucide-react";
+import { ScrollText, Settings } from "lucide-react";
 import { Link } from "react-router";
 
 const navItems = [
-  { title: "Items", url: "/dashboard/items", icon: Box },
   { title: "Menu", url: "/dashboard/menu", icon: ScrollText },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];

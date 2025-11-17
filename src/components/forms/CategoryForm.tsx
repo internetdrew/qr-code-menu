@@ -17,6 +17,12 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
+import type { CategoryIndex } from "../ManageCategoriesDropdown";
+
+interface CategoryFormProps {
+  onSuccess: () => void;
+  category?: CategoryIndex["category"] | null;
+}
 
 const formSchema = z.object({
   name: z
@@ -35,34 +41,55 @@ const formSchema = z.object({
     .optional(),
 });
 
-const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const CategoryForm = ({ onSuccess, category }: CategoryFormProps) => {
   const createCategory = useMutation(trpc.category.create.mutationOptions());
+  const updateCategory = useMutation(trpc.category.update.mutationOptions());
   const { activePlace } = usePlaceContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: category?.name ?? "",
+      description: category?.description ?? "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createCategory.mutateAsync(
-      { placeId: activePlace?.id ?? "", ...values },
-      {
-        onError: (error) => {
-          console.error("Failed to create category:", error);
-          toast.error("Failed to create category. Please try again.");
+    if (category) {
+      await updateCategory.mutateAsync(
+        { categoryId: category.id, ...values },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: trpc.category.getAllSortedByIndex.queryKey(),
+            });
+            toast.success("Category updated successfully!");
+            onSuccess();
+          },
+          onError: (error) => {
+            console.error("Failed to update category:", error);
+            toast.error("Failed to update category. Please try again.");
+          },
         },
-      },
-    );
-
-    await queryClient.invalidateQueries({
-      queryKey: trpc.category.getAllByPlace.queryKey(),
-    });
-    toast.success("Category created successfully!");
-    onSuccess();
+      );
+    } else {
+      await createCategory.mutateAsync(
+        { placeId: activePlace?.id ?? "", ...values },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: trpc.category.getAllSortedByIndex.queryKey(),
+            });
+            toast.success("Category created successfully!");
+            onSuccess();
+          },
+          onError: (error) => {
+            console.error("Failed to create category:", error);
+            toast.error("Failed to create category. Please try again.");
+          },
+        },
+      );
+    }
   };
 
   return (
@@ -81,7 +108,9 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
                 />
               </FormControl>
               <FormDescription>
-                Once created, you can add menu items to this category.
+                {category
+                  ? "Update the name of this category."
+                  : "Once created, you can add menu items to this category."}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -110,7 +139,13 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
         />
         <div className="flex justify-end">
           <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? "Creating..." : "Create"}
+            {form.formState.isSubmitting
+              ? category
+                ? "Updating..."
+                : "Creating..."
+              : category
+                ? "Update"
+                : "Create"}
           </Button>
         </div>
       </form>
@@ -118,4 +153,4 @@ const CreateCategoryForm = ({ onSuccess }: { onSuccess: () => void }) => {
   );
 };
 
-export default CreateCategoryForm;
+export default CategoryForm;
