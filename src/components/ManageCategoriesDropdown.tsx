@@ -13,32 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
-import { queryClient, trpc } from "@/utils/trpc";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { trpc } from "@/utils/trpc";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { AppRouter } from "../../server";
 import type { inferRouterOutputs } from "@trpc/server";
-import { toast } from "sonner";
 import FormDialog from "./dialogs/FormDialog";
 import CategoryForm from "./forms/CategoryForm";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+
 import DeleteCategoryAlertDialog from "./dialogs/DeleteCategoryAlertDialog";
 
 export type CategoryIndex =
@@ -54,9 +36,6 @@ const ManageCategoriesDropdown = () => {
     CategoryIndex["category"] | null
   >(null);
   const [categoryIndexes, setCategoryIndexes] = useState<CategoryIndex[]>([]);
-  const updateCategoryOrderMutation = useMutation(
-    trpc.category.updateOrder.mutationOptions(),
-  );
 
   const { activePlace } = usePlaceContext();
 
@@ -77,50 +56,6 @@ const ManageCategoriesDropdown = () => {
     }
   }, [indexedCategories]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      setCategoryIndexes((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-
-        updateCategoryOrderMutation.mutateAsync(
-          {
-            placeId: activePlace!.id,
-            newCategoryOrder: newOrder.map((catIndex) => ({
-              indexId: catIndex.id,
-              categoryId: catIndex.category.id,
-            })),
-          },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries({
-                queryKey: trpc.category.getAllSortedByIndex.queryKey(),
-              });
-              toast.success("Category order updated.");
-            },
-            onError: (error) => {
-              console.error("Failed to update category order:", error);
-              toast.error("Failed to update category order. Please try again.");
-            },
-          },
-        );
-
-        return newOrder;
-      });
-    }
-  };
-
   const promptCategoryDelete = (category: CategoryIndex["category"]) => {
     setCategoryToDelete(category);
     setIsDeleteDialogOpen(true);
@@ -140,27 +75,30 @@ const ManageCategoriesDropdown = () => {
         <DropdownMenuContent className="w-56" align="end">
           <DropdownMenuLabel>My Categories</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={categoryIndexes.map((c) => c.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <DropdownMenuGroup>
-                {categoryIndexes?.map((index) => (
-                  <SortableCategoryItem
-                    key={index.id}
-                    categoryIndex={index}
-                    onEdit={handleEdit}
-                    onDelete={promptCategoryDelete}
-                  />
-                ))}
-              </DropdownMenuGroup>
-            </SortableContext>
-          </DndContext>
+          <DropdownMenuGroup>
+            {categoryIndexes?.map((index) => (
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="flex-1">
+                  {index.category.name}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem
+                      onClick={() => handleEdit(index.category)}
+                    >
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => promptCategoryDelete(index.category)}
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            ))}
+          </DropdownMenuGroup>
+
           <DropdownMenuSeparator />
           <Button
             variant="ghost"
@@ -204,55 +142,3 @@ const ManageCategoriesDropdown = () => {
 };
 
 export default ManageCategoriesDropdown;
-
-const SortableCategoryItem = ({
-  categoryIndex,
-  onEdit,
-  onDelete,
-}: {
-  categoryIndex: CategoryIndex;
-  onEdit: (category: CategoryIndex["category"]) => void;
-  onDelete: (category: CategoryIndex["category"]) => void;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: categoryIndex.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className="flex items-center">
-      <button
-        className="cursor-grab px-1 active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="text-muted-foreground h-4 w-4" />
-      </button>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="flex-1">
-          {categoryIndex.category.name}
-        </DropdownMenuSubTrigger>
-        <DropdownMenuPortal>
-          <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={() => onEdit(categoryIndex.category)}>
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete(categoryIndex.category)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuPortal>
-      </DropdownMenuSub>
-    </div>
-  );
-};
