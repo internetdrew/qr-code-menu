@@ -27,11 +27,9 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <ProtectedRoute>
-        <QueryClientProvider client={queryClient}>
-          <PlaceProvider>
-            <App />
-          </PlaceProvider>
-        </QueryClientProvider>
+        <PlaceProvider>
+          <App />
+        </PlaceProvider>
       </ProtectedRoute>
     ),
     children: [
@@ -63,7 +61,9 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </AuthProvider>
   </StrictMode>,
 );
