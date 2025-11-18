@@ -14,7 +14,7 @@ import {
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { queryClient, trpc } from "@/utils/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ChevronRight, GripVertical } from "lucide-react";
+import { ChevronRight, ChevronRightIcon, GripVertical } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   DndContext,
@@ -38,6 +38,7 @@ import type { AppRouter } from "../../server";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router";
 
 type CategoryIndex =
   inferRouterOutputs<AppRouter>["category"]["getAllSortedByIndex"][number];
@@ -181,69 +182,90 @@ export const SettingsPage = () => {
 
   return (
     <div>
-      <main className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Category Order</CardTitle>
-            <CardDescription>
-              Reorder your categories as you want them to appear on your menu.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={categoryIndexes.map((c) => c.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {categoryIndexes?.map((categoryIndex) => (
-                  <SortableCategoryItem
-                    key={categoryIndex.id}
-                    categoryIndex={categoryIndex}
-                    setChosenCategory={setChosenCategory}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </CardContent>
-        </Card>
-        {chosenCategory && (
-          <Card className="lg:col-span-2">
+      <main>
+        <Item
+          variant={"outline"}
+          size={"sm"}
+          asChild
+          className="my-4 ml-auto flex w-fit"
+        >
+          <Link
+            to={`/menu/${activePlace?.id}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <ItemContent>
+              <ItemTitle>Visit live menu</ItemTitle>
+            </ItemContent>
+            <ItemActions>
+              <ChevronRightIcon className="size-4 text-pink-600" />
+            </ItemActions>
+          </Link>
+        </Item>
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
             <CardHeader>
-              <CardTitle>{chosenCategory?.name}</CardTitle>
+              <CardTitle>Category Order</CardTitle>
               <CardDescription>
-                Reorder your {chosenCategory?.name} as you want them to appear
-                on your menu.
+                Reorder your categories as you want them to appear on your menu.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragEnd={handleItemDragEnd}
+                onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={itemIndexes.map((item) => item.id)}
+                  items={categoryIndexes.map((c) => c.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {isLoadingItems
-                    ? Array.from({ length: 5 }).map((_, index) => (
-                        <Skeleton key={index} className="h-10" />
-                      ))
-                    : itemIndexes.map((itemIndex) => (
-                        <SortableMenuItem
-                          key={itemIndex.id}
-                          itemIndex={itemIndex}
-                        />
-                      ))}
+                  {categoryIndexes?.map((categoryIndex) => (
+                    <SortableCategoryItem
+                      key={categoryIndex.id}
+                      categoryIndex={categoryIndex}
+                      setChosenCategory={setChosenCategory}
+                    />
+                  ))}
                 </SortableContext>
               </DndContext>
             </CardContent>
           </Card>
-        )}
+          {chosenCategory && (
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>{chosenCategory?.name}</CardTitle>
+                <CardDescription>
+                  Reorder your {chosenCategory?.name} as you want them to appear
+                  on your menu.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleItemDragEnd}
+                >
+                  <SortableContext
+                    items={itemIndexes.map((item) => item.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {isLoadingItems
+                      ? Array.from({ length: 5 }).map((_, index) => (
+                          <Skeleton key={index} className="h-10" />
+                        ))
+                      : itemIndexes.map((itemIndex) => (
+                          <SortableMenuItem
+                            key={itemIndex.id}
+                            itemIndex={itemIndex}
+                          />
+                        ))}
+                  </SortableContext>
+                </DndContext>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </main>
     </div>
   );
