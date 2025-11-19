@@ -62,7 +62,7 @@ const PublicMenu = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <nav className="bg-background fixed top-0 right-0 left-0 mx-auto flex w-full max-w-screen-sm items-center justify-between px-4 py-4">
-        <h1 className="text-lg font-semibold">{menu.place.name}</h1>
+        <h1 className="text-lg">{menu.place.name}</h1>
         <DropdownMenu>
           <DropdownMenuTrigger aria-label="Menu Categories">
             <Menu />
