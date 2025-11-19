@@ -88,7 +88,7 @@ export const MenuPage = () => {
     trpc.item.updateOrder.mutationOptions(),
   );
 
-  const { data: indexedCategories } = useQuery(
+  const { data: indexedCategories, isLoading: isLoadingCategories } = useQuery(
     trpc.category.getAllSortedByIndex.queryOptions(
       {
         placeId: activePlace?.id ?? "",
@@ -269,14 +269,18 @@ export const MenuPage = () => {
                     items={categoryIndexes.map((c) => c.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {categoryIndexes?.map((categoryIndex) => (
-                      <SortableCategoryItem
-                        key={categoryIndex.id}
-                        categoryIndex={categoryIndex}
-                        setChosenCategory={setChosenCategory}
-                        setParams={setParams}
-                      />
-                    ))}
+                    {isLoadingCategories
+                      ? Array.from({ length: 3 }).map((_, index) => (
+                          <Skeleton key={index} className="h-12" />
+                        ))
+                      : categoryIndexes.map((categoryIndex) => (
+                          <SortableCategoryItem
+                            key={categoryIndex.id}
+                            categoryIndex={categoryIndex}
+                            setChosenCategory={setChosenCategory}
+                            setParams={setParams}
+                          />
+                        ))}
                   </SortableContext>
                 </DndContext>
               </CardContent>
