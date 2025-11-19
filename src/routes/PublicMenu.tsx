@@ -57,7 +57,7 @@ const PublicMenu = () => {
         <nav className="my-8 flex flex-wrap items-center justify-center gap-4">
           <ul className="flex flex-wrap items-center justify-center gap-4">
             {menu.categories.map((category) => (
-              <li>
+              <li key={category.id}>
                 <Link
                   to={{ hash: `#${createSlug(category.name)}` }}
                   className="underline-offset-4 duration-300 hover:underline"
