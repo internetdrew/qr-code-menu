@@ -48,7 +48,6 @@ export function NavMain() {
       title: "Live Menu",
       url: `/menu/${activePlace?.id}`,
       icon: Eye,
-      newTab: true,
     },
   ];
 
@@ -109,12 +108,7 @@ export function NavMain() {
             {viewItems?.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton tooltip={item.title} asChild>
-                  <Link
-                    to={item.url}
-                    target={item.newTab ? "_blank" : undefined}
-                    rel={item.newTab ? "noreferrer" : undefined}
-                    onClick={() => setOpenMobile(false)}
-                  >
+                  <Link to={item.url} onClick={() => setOpenMobile(false)}>
                     <item.icon />
                     <span>{item.title}</span>
                   </Link>
