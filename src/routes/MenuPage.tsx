@@ -115,10 +115,10 @@ export const MenuPage = () => {
     if (!key) return;
 
     const el = document.getElementById(key);
-    if (el) {
+    if (el && !isLoadingItems) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [params]);
+  }, [params, isLoadingItems]);
 
   useEffect(() => {
     if (indexedCategories) {
