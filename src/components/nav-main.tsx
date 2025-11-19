@@ -8,7 +8,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
-import { createSlug } from "@/utils/createSlug";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { List, Settings } from "lucide-react";
@@ -17,7 +16,7 @@ import { Skeleton } from "./ui/skeleton";
 
 const settingsItems = [
   { title: "General", url: "/dashboard/settings/general", icon: Settings },
-  { title: "Categories", url: "/dashboard/settings/categories", icon: List },
+  { title: "Categories", url: "/dashboard/categories", icon: List },
 ];
 
 export function NavMain() {
@@ -58,7 +57,7 @@ export function NavMain() {
                       asChild
                     >
                       <Link
-                        to={`/dashboard/menu/${createSlug(index.category.name)}`}
+                        to={`/dashboard/categories/${index.category.id}`}
                         onClick={() => setOpenMobile(false)}
                       >
                         <span>{index.category.name}</span>
