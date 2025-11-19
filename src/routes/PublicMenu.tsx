@@ -75,10 +75,13 @@ const PublicMenu = () => {
             <section key={category.id} className="mt-16">
               <h2
                 id={createSlug(category.name)}
-                className="mb-4 scroll-mt-20 border-b pb-3 text-lg font-medium"
+                className="scroll-mt-20 text-lg font-medium"
               >
                 {category.name}
               </h2>
+              <p className="text-muted-foreground mb-4 border-b pb-3 text-sm">
+                {category.description}
+              </p>
               {category.items.length === 0 ? (
                 <p>No items in this category.</p>
               ) : (

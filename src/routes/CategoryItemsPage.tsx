@@ -160,8 +160,7 @@ export const CategoryItemsPage = () => {
                   <Info className="ml-1 size-3" />
                 </PopoverTrigger>
                 <PopoverContent className="text-sm">
-                  You can reorder your categories as you'd like them to show up
-                  on your public menu.
+                  {category?.description}
                 </PopoverContent>
               </Popover>
             </>
@@ -193,7 +192,7 @@ export const CategoryItemsPage = () => {
               <div className="space-y-2">
                 {isLoadingItems
                   ? Array.from({ length: 3 }).map((_, index) => (
-                      <Skeleton key={index} className="h-11 lg:max-w-1/2" />
+                      <Skeleton key={index} className="h-16 lg:max-w-1/2" />
                     ))
                   : itemIndexes.map((itemIndex) => (
                       <SortableMenuItem

@@ -10,7 +10,7 @@ import {
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, List, Settings } from "lucide-react";
+import { Eye, Settings } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "./ui/skeleton";
 
@@ -19,11 +19,6 @@ const settingsItems = [
     title: "General",
     url: "/dashboard/settings/general",
     icon: Settings,
-  },
-  {
-    title: "Categories",
-    url: "/dashboard/categories",
-    icon: List,
   },
 ];
 
@@ -61,6 +56,20 @@ export function NavMain() {
         <SidebarGroupLabel>Manage</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                title={"Categories"}
+                tooltip={"Categories"}
+                asChild
+              >
+                <Link
+                  to={`/dashboard/categories`}
+                  onClick={() => setOpenMobile(false)}
+                >
+                  Categories
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             {isLoadingCategories
               ? Array.from({ length: 5 }).map((_, index) => (
                   <Skeleton key={index} className="h-8" />
