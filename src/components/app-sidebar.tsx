@@ -12,6 +12,7 @@ import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Link } from "react-router";
 import { title } from "@/constants";
@@ -19,12 +20,17 @@ import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { places } = usePlaceContext();
+  const { setOpenMobile } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenuButton asChild>
-          <Link to="/" className="flex items-center">
+        <SidebarMenuButton asChild tooltip={"Home"}>
+          <Link
+            to="/"
+            className="flex items-center"
+            onClick={() => setOpenMobile(false)}
+          >
             <ScrollText className="size-4 text-pink-600" />
             <span className="font-semibold">{title}</span>
           </Link>
