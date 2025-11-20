@@ -35,9 +35,11 @@ const PublicMenu = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto space-y-4 py-8">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-64 w-full" />
+      <div className="mx-auto w-full max-w-screen-sm px-4 py-8">
+        <Skeleton className="mx-auto mb-6 h-8 w-1/4" />
+        <Skeleton className="mx-auto mt-8 h-8 w-1/4" />
+        <Skeleton className="mt-16 mb-2 h-8 w-1/4" />
+        <Skeleton className="h-8 w-1/2" />
       </div>
     );
   }
