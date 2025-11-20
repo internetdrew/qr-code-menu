@@ -63,4 +63,28 @@ export const qrCodeRouter = router({
 
       return uploadData;
     }),
+  getPublicUrlByPlace: protectedProcedure
+    .input(
+      z.object({
+        placeId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { placeId } = input;
+
+      const { data, error } = await supabaseAdminClient
+        .from("qr_codes")
+        .select("public_url")
+        .eq("place_id", placeId)
+        .single();
+
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch QR code by place ID: ${error.message}`,
+        });
+      }
+
+      return data;
+    }),
 });
