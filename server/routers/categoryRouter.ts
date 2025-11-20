@@ -221,4 +221,25 @@ export const categoryRouter = router({
       }
       return data;
     }),
+  getCountByPlaceId: protectedProcedure
+    .input(
+      z.object({
+        placeId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { placeId } = input;
+      const { count, error } = await supabaseAdminClient
+        .from("place_categories")
+        .select("id", { count: "exact", head: true })
+        .eq("place_id", placeId);
+
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to fetch category count: ${error.message}`,
+        });
+      }
+      return count ?? 0;
+    }),
 });

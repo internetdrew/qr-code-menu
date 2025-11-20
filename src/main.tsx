@@ -18,6 +18,7 @@ import PublicMenu from "./routes/PublicMenu.tsx";
 import { CategoriesPage } from "./routes/CategoriesPage.tsx";
 import { CategoryItemsPage } from "./routes/CategoryItemsPage.tsx";
 import { SettingsPage } from "./routes/SettingsPage.tsx";
+import { HomePage } from "./routes/HomePage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <h1>Dashboard Home</h1>,
+            element: <HomePage />,
           },
           {
             path: "categories",
