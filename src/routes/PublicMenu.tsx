@@ -72,7 +72,7 @@ const PublicMenu = () => {
           </ul>
         </nav>
         {menu.categories.length === 0 ? (
-          <p>No categories available.</p>
+          <p className="mt-16 text-center">No categories available.</p>
         ) : (
           menu.categories.map((category) => (
             <section key={category.id} className="mt-16">
