@@ -10,17 +10,9 @@ import {
 import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Settings } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "./ui/skeleton";
-
-const settingsItems = [
-  {
-    title: "General",
-    url: "/dashboard/settings/general",
-    icon: Settings,
-  },
-];
 
 export function NavMain() {
   const { places } = usePlaceContext();
@@ -90,23 +82,6 @@ export function NavMain() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-      <SidebarGroup>
-        <SidebarGroupLabel>Settings</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {settingsItems?.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title} asChild>
-                  <Link to={item.url} onClick={() => setOpenMobile(false)}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
