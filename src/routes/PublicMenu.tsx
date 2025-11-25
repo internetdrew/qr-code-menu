@@ -58,17 +58,20 @@ const PublicMenu = () => {
         <h1 className="text-center text-xl font-medium">{menu.place.name}</h1>
         <nav className="my-8 flex flex-wrap items-center justify-center gap-4">
           <ul className="flex flex-wrap items-center justify-center gap-4">
-            {menu.categories.map((category) => (
-              <li key={category.id}>
-                <Link
-                  replace
-                  to={{ hash: `#${createSlug(category.name)}` }}
-                  className="underline-offset-4 duration-300 hover:underline"
-                >
-                  {category.name}
-                </Link>
-              </li>
-            ))}
+            {menu.categories.map((category) => {
+              if (category.items.length > 0)
+                return (
+                  <li key={category.id}>
+                    <Link
+                      replace
+                      to={{ hash: `#${createSlug(category.name)}` }}
+                      className="underline-offset-4 duration-300 hover:underline"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                );
+            })}
           </ul>
         </nav>
         {menu.categories.length === 0 ? (
