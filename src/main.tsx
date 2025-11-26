@@ -19,11 +19,16 @@ import { CategoriesPage } from "./routes/CategoriesPage.tsx";
 import { CategoryItemsPage } from "./routes/CategoryItemsPage.tsx";
 import { SettingsPage } from "./routes/SettingsPage.tsx";
 import { HomePage } from "./routes/HomePage.tsx";
+import NotFound from "./routes/NotFound.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/preview/menu",
+    element: <Navigate to="/dashboard" replace />,
   },
   {
     path: "/preview/menu/:placeId",
@@ -81,6 +86,14 @@ const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/404" replace />,
+  },
+  {
+    path: "/404",
+    element: <NotFound />,
   },
 ]);
 
