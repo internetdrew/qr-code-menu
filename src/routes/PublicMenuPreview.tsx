@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { linkClasses } from "@/constants";
+import { linkClasses, liveSiteUrl } from "@/constants";
 import { createSlug } from "@/utils/createSlug";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
@@ -58,10 +58,7 @@ export const PublicMenuPreview = () => {
       <div className="sticky top-0 z-10 border-b border-yellow-300 bg-yellow-100 py-2 text-center text-sm text-yellow-800">
         Preview Mode
         {menu.place.is_live ? (
-          <a
-            href={`https://app.domain/${menu.place.id}`}
-            className={linkClasses}
-          >
+          <a href={`${liveSiteUrl}/${menu.place.id}`} className={linkClasses}>
             View Live Menu
           </a>
         ) : (
