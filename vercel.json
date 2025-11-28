@@ -12,6 +12,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/server/index.ts" },
     { "source": "/trpc/:path*", "destination": "/server/index.ts" },
     { "source": "/auth/callback", "destination": "/server/index.ts" },
     { "source": "/(.*)", "destination": "/index.html" }
