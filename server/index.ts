@@ -14,6 +14,7 @@ import { categoryRouter } from "./routers/categoryRouter";
 import { itemRouter } from "./routers/itemRouter";
 import { menuRouter } from "./routers/menuRouter";
 import { stripeRouter } from "./routers/stripeRouter";
+import { subscriptionRouter } from "./routers/subscriptionRouter";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -24,6 +25,7 @@ export const appRouter = router({
   item: itemRouter,
   menu: menuRouter,
   stripe: stripeRouter,
+  subscription: subscriptionRouter,
 });
 
 const corsOptions = {
