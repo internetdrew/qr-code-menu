@@ -13,6 +13,9 @@ import { qrCodeRouter } from "./routers/qrRouter";
 import { categoryRouter } from "./routers/categoryRouter";
 import { itemRouter } from "./routers/itemRouter";
 import { menuRouter } from "./routers/menuRouter";
+import { stripeRouter } from "./routers/stripeRouter";
+import { subscriptionRouter } from "./routers/subscriptionRouter";
+import { stripeWebhookHandler } from "./utils/stripe";
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
@@ -22,6 +25,8 @@ export const appRouter = router({
   category: categoryRouter,
   item: itemRouter,
   menu: menuRouter,
+  stripe: stripeRouter,
+  subscription: subscriptionRouter,
 });
 
 const corsOptions = {
@@ -34,8 +39,11 @@ const app = express();
 app.use(compression());
 app.use(helmet());
 app.use(cors(corsOptions));
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
+
+app.post("/api/stripe/webhook", stripeWebhookHandler);
 
 app.get("/auth/callback", async function (req, res) {
   const code = req.query.code;

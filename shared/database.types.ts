@@ -179,21 +179,18 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          is_live: boolean
           name: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          is_live?: boolean
           name: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          is_live?: boolean
           name?: string
           user_id?: string
         }
@@ -228,6 +225,53 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: number
+          place_id: string
+          status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end: string
+          current_period_start: string
+          id?: number
+          place_id: string
+          status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: number
+          place_id?: string
+          status?: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
+          stripe_customer_id?: string
+          stripe_price_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "place_subscriptions_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -236,7 +280,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      SUBSCRIPTION_STATUS:
+        | "incomplete"
+        | "incomplete_expired"
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "canceled"
+        | "unpaid"
+        | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -363,6 +415,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      SUBSCRIPTION_STATUS: [
+        "incomplete",
+        "incomplete_expired",
+        "trialing",
+        "active",
+        "past_due",
+        "canceled",
+        "unpaid",
+        "paused",
+      ],
+    },
   },
 } as const
