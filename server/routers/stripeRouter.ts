@@ -38,10 +38,13 @@ export const stripeRouter = router({
         ],
         success_url: `${APP_DOMAIN}/upgrade/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${APP_DOMAIN}/dashboard?canceled=true`,
-
         metadata: {
           placeId: placeId,
-          userId: user!.id,
+        },
+        subscription_data: {
+          metadata: {
+            placeId: placeId,
+          },
         },
       });
 
