@@ -84,7 +84,7 @@ export const Menu = ({ isPreview = false }: MenuProps) => {
     );
   }
 
-  if (!isPreview && menu && !subscription) {
+  if (!isPreview && menu && !subscriptionIsActive) {
     return <MenuUnavailable placeName={menu.place.name} />;
   }
 
