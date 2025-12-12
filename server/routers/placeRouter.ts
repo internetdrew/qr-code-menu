@@ -29,8 +29,13 @@ export const placeRouter = router({
 
       return place;
     }),
-  getAll: protectedProcedure.query(async () => {
-    const { data, error } = await supabaseAdminClient.from("places").select();
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    const { data, error } = await supabaseAdminClient
+      .from("places")
+      .select()
+      .eq("user_id", userId);
 
     if (error) {
       throw new TRPCError({
