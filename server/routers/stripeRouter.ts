@@ -46,7 +46,7 @@ export const stripeRouter = router({
             quantity: 1,
           },
         ],
-        success_url: `${APP_DOMAIN}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${APP_DOMAIN}/dashboard?success=true`,
         cancel_url: `${APP_DOMAIN}/dashboard?canceled=true`,
         metadata: {
           placeId: placeId,
