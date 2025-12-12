@@ -15,8 +15,8 @@ import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 export const HomePage = () => {
   const [params, setSearchParams] = useSearchParams();
   const [showToast, setShowToast] = useState(false);
-  const navigate = useNavigate();
   const { activePlace } = usePlaceContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const successfulSubscription = params.get("success") === "true";
