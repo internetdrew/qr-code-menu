@@ -25,8 +25,8 @@ import { Button } from "./components/ui/button";
 import { useState } from "react";
 import { Spinner } from "./components/ui/spinner";
 import FormDialog from "./components/dialogs/FormDialog";
-import CreatePlaceForm from "./components/forms/CreatePlaceForm";
-import FeedbackTrigger from "./components/FeedbackTrigger";
+import { CreateBusinessForm } from "./components/forms/CreateBusinessForm";
+import { UserFeedbackTrigger } from "./components/UserFeedbackTrigger";
 
 function App() {
   const { places, activePlace, loading } = usePlaceContext();
@@ -55,7 +55,7 @@ function App() {
                 </Breadcrumb>
               </>
             )}
-            <FeedbackTrigger />
+            <UserFeedbackTrigger />
           </div>
         </header>
         <div className="p-4 pt-0">
@@ -64,7 +64,7 @@ function App() {
           ) : places.length > 0 ? (
             <Outlet />
           ) : (
-            <CreatePlaceCard />
+            <CreateBusinessPrompt />
           )}
           <Toaster />
         </div>
@@ -75,31 +75,31 @@ function App() {
 
 export default App;
 
-const CreatePlaceCard = () => {
+const CreateBusinessPrompt = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <>
       <Card className="mx-auto mt-28 max-w-sm text-center">
         <CardHeader className="text-center">
-          <CardTitle>No Places Found</CardTitle>
+          <CardTitle>No Business Found</CardTitle>
           <CardDescription>
-            Get started by creating your first place to create a menu for.
+            Add your business to start managing your menus.
           </CardDescription>
         </CardHeader>
         <CardFooter>
           <Button className="w-full" onClick={() => setIsDialogOpen(true)}>
-            Create a Place
+            Create Business
           </Button>
         </CardFooter>
       </Card>
       <FormDialog
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
-        title="Create Place"
-        description="Fill out the form below to create a new place."
+        title="Create Business"
+        description="Fill out the form below to create your business."
         formComponent={
-          <CreatePlaceForm onSuccess={() => setIsDialogOpen(false)} />
+          <CreateBusinessForm onSuccess={() => setIsDialogOpen(false)} />
         }
       />
     </>
