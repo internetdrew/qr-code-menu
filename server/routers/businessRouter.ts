@@ -29,7 +29,22 @@ export const businessRouter = router({
 
       return place;
     }),
+  getForUser: protectedProcedure.query(async ({ ctx }) => {
+    const { data, error } = await supabaseAdminClient
+      .from("businesses")
+      .select()
+      .eq("user_id", ctx.user.id)
+      .maybeSingle();
 
+    if (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: error.message,
+      });
+    }
+
+    return data;
+  }),
   delete: protectedProcedure
     .input(
       z.object({
