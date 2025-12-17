@@ -53,6 +53,27 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          created_at: string
+          feedback: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feedback?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       item_sort_indexes: {
         Row: {
           category_id: number
