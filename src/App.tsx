@@ -13,7 +13,6 @@ import {
   BreadcrumbList,
 } from "./components/ui/breadcrumb";
 import { Toaster } from "./components/ui/sonner";
-import { usePlaceContext } from "./contexts/ActivePlaceContext";
 import {
   Card,
   CardDescription,
@@ -27,9 +26,13 @@ import { Spinner } from "./components/ui/spinner";
 import FormDialog from "./components/dialogs/FormDialog";
 import { CreateBusinessForm } from "./components/forms/CreateBusinessForm";
 import { UserFeedbackTrigger } from "./components/UserFeedbackTrigger";
+import { useQuery } from "@tanstack/react-query";
+import { trpc } from "./utils/trpc";
 
 function App() {
-  const { places, activePlace, loading } = usePlaceContext();
+  const { data: business, isLoading } = useQuery(
+    trpc.business.getForUser.queryOptions(),
+  );
 
   return (
     <SidebarProvider>
@@ -38,7 +41,7 @@ function App() {
         <header className="bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex flex-1 items-center gap-2">
             <SidebarTrigger />
-            {activePlace && (
+            {business && (
               <>
                 <Separator
                   orientation="vertical"
@@ -48,7 +51,7 @@ function App() {
                   <BreadcrumbList>
                     <BreadcrumbItem>
                       <BreadcrumbLink asChild>
-                        <Link to="/dashboard">{activePlace?.name}</Link>
+                        <Link to="/dashboard">{business?.name}</Link>
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                   </BreadcrumbList>
@@ -59,9 +62,9 @@ function App() {
           </div>
         </header>
         <div className="p-4 pt-0">
-          {loading ? (
+          {isLoading ? (
             <Spinner className="mx-auto mt-36 size-6 text-pink-600" />
-          ) : places.length > 0 ? (
+          ) : business ? (
             <Outlet />
           ) : (
             <CreateBusinessPrompt />
