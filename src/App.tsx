@@ -26,6 +26,7 @@ import { useState } from "react";
 import { Spinner } from "./components/ui/spinner";
 import FormDialog from "./components/dialogs/FormDialog";
 import CreatePlaceForm from "./components/forms/CreatePlaceForm";
+import FeedbackTrigger from "./components/FeedbackTrigger";
 
 function App() {
   const { places, activePlace, loading } = usePlaceContext();
@@ -35,7 +36,7 @@ function App() {
       <AppSidebar />
       <SidebarInset>
         <header className="bg-background sticky top-0 flex h-16 shrink-0 items-center gap-2 pr-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex flex-1 items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             {activePlace && (
               <>
@@ -54,6 +55,7 @@ function App() {
                 </Breadcrumb>
               </>
             )}
+            <FeedbackTrigger />
           </div>
         </header>
         <div className="p-4 pt-0">

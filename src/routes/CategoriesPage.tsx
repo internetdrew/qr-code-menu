@@ -39,6 +39,7 @@ import { ClipboardPen, GripVertical, Info, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AppRouter } from "server";
 import { toast } from "sonner";
+import { Link } from "react-router";
 
 type CategoryIndex =
   inferRouterOutputs<AppRouter>["category"]["getAllSortedByIndex"][number];
@@ -237,7 +238,9 @@ const SortableCategoryItem = ({
         </button>
         <ItemContent>
           <ItemTitle className="select-none">
-            {categoryIndex?.category?.name}
+            <Link to={`/dashboard/categories/${categoryIndex.category.id}`}>
+              {categoryIndex?.category?.name}
+            </Link>
           </ItemTitle>
         </ItemContent>
         <ItemActions>
