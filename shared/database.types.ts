@@ -113,6 +113,7 @@ export type Database = {
           id: number
           image_url: string | null
           menu_category_id: number
+          menu_id: string
           name: string
           price: number
           updated_at: string
@@ -123,6 +124,7 @@ export type Database = {
           id?: number
           image_url?: string | null
           menu_category_id: number
+          menu_id: string
           name: string
           price: number
           updated_at?: string
@@ -133,6 +135,7 @@ export type Database = {
           id?: number
           image_url?: string | null
           menu_category_id?: number
+          menu_id?: string
           name?: string
           price?: number
           updated_at?: string
@@ -145,6 +148,13 @@ export type Database = {
             referencedRelation: "menu_categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "menu_category_items_menu_id_fkey"
+            columns: ["menu_id"]
+            isOneToOne: false
+            referencedRelation: "menus"
+            referencedColumns: ["id"]
+          },
         ]
       }
       menu_category_sort_indexes: {
@@ -152,18 +162,21 @@ export type Database = {
           category_id: number
           created_at: string
           id: number
+          menu_id: string
           order_index: number | null
         }
         Insert: {
           category_id: number
           created_at?: string
           id?: number
+          menu_id: string
           order_index?: number | null
         }
         Update: {
           category_id?: number
           created_at?: string
           id?: number
+          menu_id?: string
           order_index?: number | null
         }
         Relationships: [
@@ -172,6 +185,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "menu_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_category_sort_indexes_menu_id_fkey"
+            columns: ["menu_id"]
+            isOneToOne: false
+            referencedRelation: "menus"
             referencedColumns: ["id"]
           },
         ]
@@ -240,46 +260,38 @@ export type Database = {
           current_period_end: string
           current_period_start: string
           id: number
-          place_id: string
           status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
           stripe_customer_id: string
           stripe_price_id: string
           stripe_subscription_id: string
           updated_at: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           current_period_end: string
           current_period_start: string
           id?: number
-          place_id: string
           status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
           stripe_customer_id: string
           stripe_price_id: string
           stripe_subscription_id: string
           updated_at?: string
+          user_id: string
         }
         Update: {
           created_at?: string
           current_period_end?: string
           current_period_start?: string
           id?: number
-          place_id?: string
           status?: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
           stripe_customer_id?: string
           stripe_price_id?: string
           stripe_subscription_id?: string
           updated_at?: string
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "place_subscriptions_place_id_fkey"
-            columns: ["place_id"]
-            isOneToOne: false
-            referencedRelation: "businesses"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_feedback: {
         Row: {
