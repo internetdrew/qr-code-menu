@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { usePlaceContext } from "@/contexts/ActivePlaceContext";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { Copy, Download } from "lucide-react";
@@ -16,7 +15,15 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Skeleton } from "../ui/skeleton";
 
-const ShareQRButtonDialog = () => {
+interface ShareQRButtonDialogProps {
+  activeMenuId: string;
+  activeMenuName: string;
+}
+
+const ShareQRButtonDialog = ({
+  activeMenuId,
+  activeMenuName,
+}: ShareQRButtonDialogProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<number | undefined>(undefined);
@@ -30,12 +37,10 @@ const ShareQRButtonDialog = () => {
     };
   }, []);
 
-  const { activePlace } = usePlaceContext();
-
   const { data, isLoading } = useQuery(
-    trpc.qr.getPublicUrlByPlace.queryOptions(
-      { placeId: activePlace?.id ?? "" },
-      { enabled: !!activePlace },
+    trpc.menuQRCode.getPublicUrlForMenu.queryOptions(
+      { menuId: activeMenuId },
+      { enabled: !!activeMenuId },
     ),
   );
 
@@ -49,7 +54,7 @@ const ShareQRButtonDialog = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${activePlace?.name || "menu"}-qr-code.png`;
+      link.download = `${activeMenuName || "menu"}-qr-code.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -71,7 +76,7 @@ const ShareQRButtonDialog = () => {
 
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/menu/${activePlace?.id}`,
+        `${window.location.origin}/menu/${activeMenuId}`,
       );
 
       setCopied(true);
