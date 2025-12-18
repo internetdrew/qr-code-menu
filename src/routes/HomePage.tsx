@@ -60,12 +60,21 @@ export const HomePage = () => {
               Everything you need to know about your menu, at a glance.
             </PopoverContent>
           </Popover>
-          <ShareQRButtonDialog />
+          {activeMenu && (
+            <ShareQRButtonDialog
+              activeMenuId={activeMenu.id}
+              activeMenuName={activeMenu.name}
+            />
+          )}
         </div>
 
         <div className="my-4 grid grid-cols-1 items-start gap-4 sm:grid-cols-2 md:grid-cols-3">
-          <CategoriesCard />
-          <ItemsCard />
+          {activeMenu && (
+            <>
+              <CategoriesCard activeMenuId={activeMenu.id} />
+              <ItemsCard activeMenuId={activeMenu.id} />
+            </>
+          )}
         </div>
       </main>
     </div>
