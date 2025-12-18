@@ -239,7 +239,7 @@ const SortableCategoryItem = ({
         <ItemContent>
           <ItemTitle className="select-none">
             <Link to={`/dashboard/categories/${categoryIndex?.category?.id}`}>
-              {categoryIndex?.category?.name} huh
+              {categoryIndex?.category?.name}
             </Link>
           </ItemTitle>
         </ItemContent>
