@@ -81,7 +81,7 @@ export const CategoriesPage = () => {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over && active.id !== over.id) {
+    if (over && active?.id !== over?.id) {
       setIndexedCategories((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
@@ -164,7 +164,7 @@ export const CategoriesPage = () => {
                 ))
               : indexedCategories.map((index) => (
                   <SortableCategoryItem
-                    key={index.id}
+                    key={index?.id}
                     categoryIndex={index}
                     onEditButtonClick={() => {
                       setSelectedCategory(index.category);
@@ -238,8 +238,8 @@ const SortableCategoryItem = ({
         </button>
         <ItemContent>
           <ItemTitle className="select-none">
-            <Link to={`/dashboard/categories/${categoryIndex.category.id}`}>
-              {categoryIndex?.category?.name}
+            <Link to={`/dashboard/categories/${categoryIndex?.category?.id}`}>
+              {categoryIndex?.category?.name} huh
             </Link>
           </ItemTitle>
         </ItemContent>
