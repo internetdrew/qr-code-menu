@@ -5,6 +5,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useMenuContext } from "@/contexts/ActiveMenuContext";
@@ -71,31 +73,33 @@ export function NavMain() {
                   )}
                 </NavLink>
               </SidebarMenuButton>
+              <SidebarMenuSub>
+                {isLoadingCategories
+                  ? Array.from({ length: 5 }).map((_, index) => (
+                      <Skeleton key={index} className="h-8" />
+                    ))
+                  : indexedCategories?.map((index) => (
+                      <SidebarMenuSubItem key={index.category.name}>
+                        <SidebarMenuButton
+                          title={index.category.name}
+                          tooltip={index.category.name}
+                          asChild
+                        >
+                          <NavLink
+                            to={`/dashboard/categories/${index.category.id}`}
+                            onClick={() => setOpenMobile(false)}
+                          >
+                            {({ isActive }) => (
+                              <span className={isActive ? "font-semibold" : ""}>
+                                {index.category.name}
+                              </span>
+                            )}
+                          </NavLink>
+                        </SidebarMenuButton>
+                      </SidebarMenuSubItem>
+                    ))}
+              </SidebarMenuSub>
             </SidebarMenuItem>
-            {isLoadingCategories
-              ? Array.from({ length: 5 }).map((_, index) => (
-                  <Skeleton key={index} className="h-8" />
-                ))
-              : indexedCategories?.map((index) => (
-                  <SidebarMenuItem key={index.category.name}>
-                    <SidebarMenuButton
-                      title={index.category.name}
-                      tooltip={index.category.name}
-                      asChild
-                    >
-                      <NavLink
-                        to={`/dashboard/categories/${index.category.id}`}
-                        onClick={() => setOpenMobile(false)}
-                      >
-                        {({ isActive }) => (
-                          <span className={isActive ? "font-semibold" : ""}>
-                            {index.category.name}
-                          </span>
-                        )}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
