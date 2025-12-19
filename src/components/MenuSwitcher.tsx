@@ -18,6 +18,7 @@ import { useMenuContext } from "@/contexts/ActiveMenuContext";
 import FormDialog from "./dialogs/FormDialog";
 import { CreateMenuForm } from "./forms/CreateMenuForm";
 import { useNavigate } from "react-router";
+import { Skeleton } from "./ui/skeleton";
 
 export function MenuSwitcher() {
   const { isMobile } = useSidebar();
@@ -25,12 +26,16 @@ export function MenuSwitcher() {
   const [renderDropdown, setRenderDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { menus, activeMenu, setActiveMenu } = useMenuContext();
+  const { menus, activeMenu, setActiveMenu, loading } = useMenuContext();
 
   const triggerDialog = () => {
     setRenderDropdown(false);
     setIsDialogOpen(true);
   };
+
+  if (loading) {
+    return <Skeleton className="mt-2 h-10 w-full rounded-lg" />;
+  }
 
   return (
     <SidebarMenu>
