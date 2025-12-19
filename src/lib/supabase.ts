@@ -11,4 +11,9 @@ if (!supabaseUrl || !supabaseKey) {
 export const supabaseBrowserClient = createBrowserClient<Database>(
   supabaseUrl,
   supabaseKey,
+  {
+    cookieOptions: {
+      domain: "menunook.com",
+    },
+  },
 );
