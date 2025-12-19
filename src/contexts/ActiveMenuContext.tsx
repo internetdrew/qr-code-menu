@@ -48,9 +48,9 @@ export const MenuProvider: React.FC<React.PropsWithChildren> = ({
         ? localStorage.getItem("activeMenuId")
         : null;
 
-    const savedIdNum = savedId ? Number(savedId) : null;
     const found =
-      data.find((m) => savedIdNum !== null && m.id === savedIdNum) ?? data[0];
+      data.find((m) => savedId !== null && String(m.id) === savedId) ?? data[0];
+
     setActiveMenuState(found);
   }, [data]);
 
