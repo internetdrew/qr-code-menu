@@ -31,11 +31,11 @@ const router = createBrowserRouter([
     element: <Navigate to="/dashboard" replace />,
   },
   {
-    path: "/preview/menu/:placeId",
+    path: "/preview/menu/:menuId",
     element: <Menu isPreview={true} />,
   },
   {
-    path: "/menu/:placeId",
+    path: "/menu/:menuId",
     element: <Menu />,
   },
   {
