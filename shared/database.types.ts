@@ -73,21 +73,21 @@ export type Database = {
           id: number
           menu_category_id: number
           menu_category_item_id: number
-          order_index: number | null
+          order_index: number
         }
         Insert: {
           created_at?: string
           id?: number
           menu_category_id: number
           menu_category_item_id: number
-          order_index?: number | null
+          order_index: number
         }
         Update: {
           created_at?: string
           id?: number
           menu_category_id?: number
           menu_category_item_id?: number
-          order_index?: number | null
+          order_index?: number
         }
         Relationships: [
           {
@@ -163,21 +163,21 @@ export type Database = {
           created_at: string
           id: number
           menu_id: string
-          order_index: number | null
+          order_index: number
         }
         Insert: {
           category_id: number
           created_at?: string
           id?: number
           menu_id: string
-          order_index?: number | null
+          order_index: number
         }
         Update: {
           category_id?: number
           created_at?: string
           id?: number
           menu_id?: string
-          order_index?: number | null
+          order_index?: number
         }
         Relationships: [
           {
