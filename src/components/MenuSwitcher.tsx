@@ -17,9 +17,11 @@ import {
 import { useMenuContext } from "@/contexts/ActiveMenuContext";
 import FormDialog from "./dialogs/FormDialog";
 import { CreateMenuForm } from "./forms/CreateMenuForm";
+import { useNavigate } from "react-router";
 
 export function MenuSwitcher() {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
   const [renderDropdown, setRenderDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -27,7 +29,7 @@ export function MenuSwitcher() {
 
   const triggerDialog = () => {
     setRenderDropdown(false);
-    setIsDialogOpen(true);
+    navigate("/");
   };
 
   return (
@@ -62,7 +64,10 @@ export function MenuSwitcher() {
             {menus.map((menu) => (
               <DropdownMenuItem
                 key={menu.id}
-                onClick={() => setActiveMenu(menu)}
+                onClick={() => {
+                  setActiveMenu(menu);
+                  navigate("/");
+                }}
                 className="gap-2 p-2"
               >
                 {menu.name}
