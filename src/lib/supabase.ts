@@ -14,6 +14,8 @@ export const supabaseBrowserClient = createBrowserClient<Database>(
   {
     cookieOptions: {
       domain: "menunook.com",
+      sameSite: "lax",
+      secure: true,
     },
   },
 );
