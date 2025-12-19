@@ -208,7 +208,7 @@ export const menuCategoryItemRouter = router({
           .from("menu_category_item_sort_indexes")
           .update({ order_index: index })
           .eq("menu_category_id", categoryId)
-          .eq("item_id", itemId)
+          .eq("menu_category_item_id", itemId)
           .select();
 
         if (error) {
