@@ -51,7 +51,9 @@ export const HomePage = () => {
     <div>
       <main>
         <div className="my-4 flex items-center">
-          <h1 className="font-medium">Home</h1>
+          <h1 className="font-medium">
+            {activeMenu?.name && `${activeMenu.name} `}Overview
+          </h1>
           <Popover>
             <PopoverTrigger>
               <Info className="ml-1 size-3" />
