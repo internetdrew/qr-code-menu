@@ -6,7 +6,7 @@ import { MenuProvider } from "@/contexts/ActiveMenuContext";
 import { routes } from "@/routes";
 import { createTestQueryClient } from "./createTestQueryClient";
 
-export function renderApp(initialEntries: string[] = ["/"]) {
+export function renderApp(initialEntries = ["/"]) {
   const router = createMemoryRouter(routes, {
     initialEntries,
   });
