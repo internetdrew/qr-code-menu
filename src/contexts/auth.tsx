@@ -5,10 +5,10 @@ import {
   type ReactNode,
   useState,
 } from "react";
-import { type User, type Session } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { supabaseBrowserClient } from "@/lib/supabase";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   error: Error | null;
@@ -16,16 +16,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+export function AuthProvider({
+  children,
+  initialMock,
+}: {
+  children: ReactNode;
+  initialMock?: AuthContextType;
+}) {
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    if (initialMock) {
+      setUser(initialMock.user ? initialMock.user : null);
+      setIsLoading(initialMock.isLoading);
+      setError(initialMock.error);
+      return;
+    }
+
     supabaseBrowserClient.auth
       .getSession()
       .then(({ data: { session }, error }) => {
-        setSession(session);
+        setUser(session?.user ?? null);
         setIsLoading(false);
         if (error) setError(error);
       });
@@ -34,9 +47,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabaseBrowserClient.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
-        setSession(null);
+        setUser(null);
       } else if (session) {
-        setSession(session);
+        setUser(session.user);
       }
 
       setIsLoading(false);
@@ -45,10 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [initialMock]);
 
   const value: AuthContextType = {
-    user: session?.user ?? null,
+    user,
     isLoading,
     error,
   };
