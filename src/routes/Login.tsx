@@ -8,14 +8,9 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { title } from "@/constants";
-import { Navigate } from "react-router";
-import { useAuth } from "@/contexts/auth";
 import { supabaseBrowserClient } from "@/lib/supabase";
 
 const Login = () => {
-  const { user } = useAuth();
-  if (user) return <Navigate to="/" replace />;
-
   const signInWithGoogle = async () => {
     try {
       await supabaseBrowserClient.auth.signInWithOAuth({
