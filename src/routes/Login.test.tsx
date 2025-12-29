@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { supabaseBrowserClient } from "@/lib/supabase";
 import "@testing-library/jest-dom";
 import { renderApp } from "@/utils/test/renderApp";
+import { authedUserState, noUserState } from "@/utils/test/userStates";
 
 vi.mock("@/lib/supabase", () => {
   return {
@@ -14,23 +15,6 @@ vi.mock("@/lib/supabase", () => {
     },
   };
 });
-
-const noUserState = {
-  user: null,
-  isLoading: false,
-  error: null,
-};
-
-const mockUser = {
-  id: "123",
-  email: "test@example.com",
-  app_metadata: {},
-  user_metadata: {
-    name: "Test User",
-  },
-  aud: "public",
-  created_at: "2024-01-01T00:00:00Z",
-};
 
 describe("Login Component", () => {
   beforeEach(() => {
@@ -75,11 +59,7 @@ describe("Login Component", () => {
   it("redirects to home when user is present", () => {
     renderApp({
       initialEntries: ["/login"],
-      authMock: {
-        user: mockUser,
-        isLoading: false,
-        error: null,
-      },
+      authMock: authedUserState,
     });
 
     expect(screen.queryByText(/Welcome to MenuNook/i)).not.toBeInTheDocument();
