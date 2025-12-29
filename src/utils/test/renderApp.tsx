@@ -2,7 +2,6 @@ import { render } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, type AuthContextType } from "@/contexts/auth";
-import { MenuProvider } from "@/contexts/ActiveMenuContext";
 import { routes } from "@/routes";
 import { createTestQueryClient } from "./createTestQueryClient";
 
@@ -24,9 +23,7 @@ export function renderApp({
   return render(
     <AuthProvider initialMock={authMock}>
       <QueryClientProvider client={queryClient}>
-        <MenuProvider>
-          <RouterProvider router={router} />
-        </MenuProvider>
+        <RouterProvider router={router} />
       </QueryClientProvider>
     </AuthProvider>,
   );
