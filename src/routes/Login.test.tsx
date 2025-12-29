@@ -1,13 +1,9 @@
 import { expect, describe, it, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
-import Login from "./Login";
-import * as authContext from "@/contexts/auth";
 import { supabaseBrowserClient } from "@/lib/supabase";
 import "@testing-library/jest-dom";
-
-vi.mock("@/contexts/auth");
+import { renderApp } from "@/utils/test/renderApp";
 
 vi.mock("@/lib/supabase", () => {
   return {
@@ -25,23 +21,24 @@ const noUserState = {
   error: null,
 };
 
+const mockUser = {
+  id: "123",
+  email: "test@example.com",
+  app_metadata: {},
+  user_metadata: {
+    name: "Test User",
+  },
+  aud: "public",
+  created_at: "2024-01-01T00:00:00Z",
+};
+
 describe("Login Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("renders login page with title and description", () => {
-    vi.mocked(authContext.useAuth).mockReturnValue({
-      user: null,
-      isLoading: false,
-      error: null,
-    });
-
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>,
-    );
+    renderApp({ initialEntries: ["/login"], authMock: noUserState });
 
     expect(screen.getByText(/Welcome to MenuNook/i)).toBeInTheDocument();
     expect(
@@ -50,13 +47,7 @@ describe("Login Component", () => {
   });
 
   it("renders Google sign-in button", () => {
-    vi.mocked(authContext.useAuth).mockReturnValue(noUserState);
-
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>,
-    );
+    renderApp({ initialEntries: ["/login"], authMock: noUserState });
 
     const button = screen.getByRole("button", {
       name: /Continue with Google/i,
@@ -65,14 +56,8 @@ describe("Login Component", () => {
   });
 
   it("calls signInWithOAuth when Google button is clicked", async () => {
-    vi.mocked(authContext.useAuth).mockReturnValue(noUserState);
-
     const user = userEvent.setup();
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>,
-    );
+    renderApp({ initialEntries: ["/login"], authMock: noUserState });
 
     const button = screen.getByRole("button", {
       name: /Continue with Google/i,
@@ -87,30 +72,18 @@ describe("Login Component", () => {
     });
   });
 
-  it("redirects to home when user is present", async () => {
-    const mockUser = {
-      id: "123",
-      email: "test@example.com",
-      app_metadata: {},
-      user_metadata: {},
-      aud: "public",
-      created_at: "2024-01-01T00:00:00Z",
-    };
-    vi.mocked(authContext.useAuth).mockReturnValue({
-      user: mockUser,
-      isLoading: false,
-      error: null,
+  it("redirects to home when user is present", () => {
+    renderApp({
+      initialEntries: ["/login"],
+      authMock: {
+        user: mockUser,
+        isLoading: false,
+        error: null,
+      },
     });
 
-    render(
-      <MemoryRouter initialEntries={["/login"]}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<div>Home Page, Baby!</div>} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    expect(await screen.findByText("Home Page, Baby!")).toBeInTheDocument();
+    expect(screen.queryByText(/Welcome to MenuNook/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Continue with Google/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/MenuNook/i)).toBeInTheDocument();
   });
 });
