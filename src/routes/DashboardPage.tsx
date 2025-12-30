@@ -40,7 +40,7 @@ export function DashboardPage() {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         formComponent={CreateBusinessForm}
-        formDialogTitle="Create Business"
+        formDialogTitle="Create Your Business"
         formDialogDescription="Add your business to start managing your menus."
       />
     );
