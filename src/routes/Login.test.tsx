@@ -21,13 +21,27 @@ describe("Login Component", () => {
     vi.clearAllMocks();
   });
 
-  it("renders login page with title and description", () => {
+  it("renders login page with title and description when no user is present", () => {
     renderApp({ initialEntries: ["/login"], authMock: noUserState });
 
     expect(screen.getByText(/Welcome to MenuNook/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Sign in to create your online menu in minutes/i),
     ).toBeInTheDocument();
+  });
+
+  it("redirects to home when user is present", () => {
+    renderApp({
+      initialEntries: ["/login"],
+      authMock: authedUserState,
+    });
+
+    expect(screen.queryByText(/Welcome to MenuNook/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Sign in to create your online menu in minutes/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Continue with Google/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/MenuNook/i)).toBeInTheDocument();
   });
 
   it("renders Google sign-in button", () => {
@@ -54,16 +68,5 @@ describe("Login Component", () => {
         redirectTo: expect.stringContaining("/auth/callback"),
       },
     });
-  });
-
-  it("redirects to home when user is present", () => {
-    renderApp({
-      initialEntries: ["/login"],
-      authMock: authedUserState,
-    });
-
-    expect(screen.queryByText(/Welcome to MenuNook/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Continue with Google/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/MenuNook/i)).toBeInTheDocument();
   });
 });
