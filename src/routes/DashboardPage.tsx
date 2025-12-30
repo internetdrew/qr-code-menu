@@ -55,8 +55,8 @@ export function DashboardPage() {
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}
         formComponent={CreateMenuForm}
-        formDialogTitle="Create Menu"
-        formDialogDescription="Add your first menu to get started."
+        formDialogTitle="Create New Menu"
+        formDialogDescription="Fill in the details below to create a new menu."
       />
     );
   }
