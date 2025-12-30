@@ -230,6 +230,20 @@ describe("Dashboard Page", () => {
           },
         }),
       }),
+      http.post("/trpc/menu.create", async ({ request }) => {
+        const body = (await request.json()) as { name: string };
+        return HttpResponse.json([
+          {
+            result: {
+              data: {
+                id: "menu-123",
+                name: body.name,
+                business_id: "business-123",
+              },
+            },
+          },
+        ]);
+      }),
     );
 
     const user = userEvent.setup();
