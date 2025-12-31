@@ -1,14 +1,3 @@
-const mockUser = {
-  id: "123",
-  email: "test@example.com",
-  app_metadata: {},
-  user_metadata: {
-    name: "Mock User",
-  },
-  aud: "public",
-  created_at: "2024-01-01T00:00:00Z",
-};
-
 export const noUserState = {
   user: null,
   isLoading: false,
@@ -16,7 +5,16 @@ export const noUserState = {
 };
 
 export const authedUserState = {
-  user: mockUser,
+  user: {
+    id: "123",
+    email: "test@example.com",
+    app_metadata: {},
+    user_metadata: {
+      name: "Mock User",
+    },
+    aud: "public",
+    created_at: "2024-01-01T00:00:00Z",
+  },
   isLoading: false,
   error: null,
 };
