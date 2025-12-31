@@ -4,10 +4,6 @@ import { AppSidebar } from "./app-sidebar";
 import { Header } from "./Header";
 import { Toaster } from "./ui/sonner";
 
-/**
- * Pure layout component - handles structure only
- * No data fetching, loading states, or business logic
- */
 export function AppLayout() {
   return (
     <SidebarProvider>
