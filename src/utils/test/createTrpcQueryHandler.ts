@@ -13,14 +13,19 @@ export function createTrpcQueryHandler(
     const url = new URL(request.url);
     const procedures = url.pathname.replace("/trpc/", "").split(",");
 
-    return HttpResponse.json(
-      procedures.map((procedure) => {
-        const resolver = resolvers[procedure];
-        if (!resolver) {
-          throw new Error(`Missing tRPC mock for ${procedure}`);
-        }
-        return resolver();
-      }),
-    );
+    const results = procedures.map((procedure) => {
+      const resolver = resolvers[procedure];
+
+      if (!resolver) {
+        console.warn(
+          `No resolver for tRPC procedure "${procedure}", returning null`,
+        );
+        return { result: { data: null } };
+      }
+
+      return resolver();
+    });
+
+    return HttpResponse.json(procedures.length === 1 ? results[0] : results);
   });
 }
