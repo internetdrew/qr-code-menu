@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useMenuContext } from "@/contexts/ActiveMenuContext";
-import type { CategoryIndex } from "../ManageCategoriesDropdown";
+import type { CategoryIndex } from "@/routes/CategoriesPage";
 
 interface CategoryFormProps {
   onSuccess: () => void;

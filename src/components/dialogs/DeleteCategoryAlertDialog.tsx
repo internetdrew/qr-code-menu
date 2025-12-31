@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import type { CategoryIndex } from "../ManageCategoriesDropdown";
 import { queryClient, trpc } from "@/utils/trpc";
 import { toast } from "sonner";
 import {
@@ -12,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
+import type { CategoryIndex } from "@/routes/CategoriesPage";
 
 const DeleteCategoryAlertDialog = ({
   category,

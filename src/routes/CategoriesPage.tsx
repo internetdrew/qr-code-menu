@@ -41,7 +41,7 @@ import type { AppRouter } from "server";
 import { toast } from "sonner";
 import { Link } from "react-router";
 
-type CategoryIndex =
+export type CategoryIndex =
   inferRouterOutputs<AppRouter>["menuCategory"]["getAllSortedByIndex"][number];
 
 export const CategoriesPage = () => {
@@ -256,7 +256,7 @@ const SortableCategoryItem = ({
             aria-label="Delete item"
             size={"icon-sm"}
             variant={"ghost"}
-            className="text-red-600"
+            className="text-red-600 hover:text-red-600"
             onClick={onDeleteButtonClick}
           >
             <Trash />

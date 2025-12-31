@@ -306,7 +306,7 @@ const SortableMenuItem = ({
             aria-label="Delete item"
             size={"icon-sm"}
             variant={"ghost"}
-            className="text-red-600"
+            className="text-red-600 hover:text-red-600"
             onClick={() => onDeleteButtonClick(itemIndex.item)}
           >
             <Trash />

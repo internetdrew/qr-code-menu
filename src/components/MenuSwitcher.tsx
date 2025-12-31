@@ -21,7 +21,7 @@ import { useNavigate } from "react-router";
 import { Skeleton } from "./ui/skeleton";
 
 export function MenuSwitcher() {
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const [renderDropdown, setRenderDropdown] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -72,6 +72,7 @@ export function MenuSwitcher() {
                 onClick={() => {
                   setActiveMenu(menu);
                   navigate("/");
+                  setOpenMobile(false);
                 }}
                 className="gap-2 p-2"
               >

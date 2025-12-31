@@ -103,9 +103,10 @@ const ShareQRButtonDialog = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Your QR Code</DialogTitle>
+          <DialogTitle>Share Your Menu</DialogTitle>
           <DialogDescription>
-            Put your camera over the QR code to open your menu.
+            Put your camera over the QR code to open your menu or copy the link
+            and paste into your browser.
           </DialogDescription>
         </DialogHeader>
         <div className="my-4 flex justify-center">
@@ -113,7 +114,11 @@ const ShareQRButtonDialog = ({
             isLoading ? (
               <Skeleton className="h-52 w-52" />
             ) : (
-              <img src={data.public_url} alt="QR Code" className="h-52 w-52" />
+              <img
+                src={data.public_url}
+                alt="Menu QR Code"
+                className="h-52 w-52"
+              />
             )
           ) : (
             <p className="text-muted-foreground text-center text-sm">
@@ -142,7 +147,7 @@ const ShareQRButtonDialog = ({
               onClick={handleDownload}
               disabled={isDownloading}
             >
-              <Download /> Save QR Code
+              <Download /> Download QR Code
             </Button>
           </div>
         </DialogFooter>
