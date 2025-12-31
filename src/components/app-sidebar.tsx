@@ -22,7 +22,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: business } = useQuery(trpc.business.getForUser.queryOptions());
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar
+      aria-label="App sidebar"
+      role="navigation"
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenuButton asChild tooltip={"Home"}>
           <Link
