@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
@@ -12,10 +12,6 @@ import {
 } from "../../shared/storeCategory";
 import { USER_FEEDBACK_LIMIT } from "../../shared/userFeedback";
 import "@/components/Onboarding";
-import "@/pages/HomePage";
-import "@/pages/HomeRoute";
-import "@/pages/LoginPage";
-import "@/pages/StorePage";
 
 const store = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -358,6 +354,9 @@ describe("home route", () => {
 
   it("keeps the public page dialog open when publishing fails", async () => {
     const user = userEvent.setup();
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
     useStoreHandlers();
     server.use(
       http.post("/trpc/store.update", () =>
@@ -409,6 +408,11 @@ describe("home route", () => {
     expect(
       await screen.findByText("Failed to update publishing. Please try again."),
     ).toBeInTheDocument();
+    expect(consoleError).toHaveBeenCalledWith(
+      "Failed to update publishing:",
+      expect.any(Error),
+    );
+    consoleError.mockRestore();
   });
 
   it("confirms before unpublishing a store from quick actions", async () => {

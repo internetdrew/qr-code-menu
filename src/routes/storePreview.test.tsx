@@ -6,7 +6,6 @@ import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
 import { authedUserState } from "@/utils/test/userStates";
 import type { StoreCategory } from "@/pages/StorePage";
-import "@/pages/StorePage";
 import { toast } from "sonner";
 
 const store = {
@@ -74,7 +73,11 @@ describe("store preview route", () => {
     });
 
     expect(
-      await screen.findByRole("heading", { name: "Sunny Deli" }),
+      await screen.findByRole(
+        "heading",
+        { name: "Sunny Deli" },
+        { timeout: 3_000 },
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Sandwiches" }),

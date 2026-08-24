@@ -5,9 +5,6 @@ import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
 import { authedUserState, noUserState } from "@/utils/test/userStates";
 import "@/components/Onboarding";
-import "@/pages/HomePage";
-import "@/pages/HomeRoute";
-import "@/pages/LoginPage";
 
 describe("login route", () => {
   it("shows unauthenticated visitors a Google sign-in call to action", async () => {
