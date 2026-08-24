@@ -250,6 +250,7 @@ export type Database = {
           id: string
           image_path: string | null
           image_url: string | null
+          is_published: boolean
           menu_seo_description: string | null
           menu_seo_title: string | null
           menu_slug: string
@@ -261,6 +262,7 @@ export type Database = {
           id?: string
           image_path?: string | null
           image_url?: string | null
+          is_published?: boolean
           menu_seo_description?: string | null
           menu_seo_title?: string | null
           menu_slug: string
@@ -272,6 +274,7 @@ export type Database = {
           id?: string
           image_path?: string | null
           image_url?: string | null
+          is_published?: boolean
           menu_seo_description?: string | null
           menu_seo_title?: string | null
           menu_slug?: string
@@ -279,53 +282,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      subscriptions: {
-        Row: {
-          created_at: string
-          current_period_end: string
-          current_period_start: string
-          id: string
-          status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
-          store_id: string
-          stripe_customer_id: string
-          stripe_price_id: string
-          stripe_subscription_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          current_period_end: string
-          current_period_start: string
-          id?: string
-          status: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
-          store_id: string
-          stripe_customer_id: string
-          stripe_price_id: string
-          stripe_subscription_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          current_period_end?: string
-          current_period_start?: string
-          id?: string
-          status?: Database["public"]["Enums"]["SUBSCRIPTION_STATUS"]
-          store_id?: string
-          stripe_customer_id?: string
-          stripe_price_id?: string
-          stripe_subscription_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: true
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_feedback: {
         Row: {
@@ -359,15 +315,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      SUBSCRIPTION_STATUS:
-        | "incomplete"
-        | "incomplete_expired"
-        | "trialing"
-        | "active"
-        | "past_due"
-        | "canceled"
-        | "unpaid"
-        | "paused"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -497,18 +445,7 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {
-      SUBSCRIPTION_STATUS: [
-        "incomplete",
-        "incomplete_expired",
-        "trialing",
-        "active",
-        "past_due",
-        "canceled",
-        "unpaid",
-        "paused",
-      ],
-    },
+    Enums: {},
   },
 } as const
 
