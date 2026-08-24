@@ -56,20 +56,15 @@ const DeleteItemAlertDialog = ({
     );
   };
 
-  const title = `Delete ${item.name}?`;
-  const description = (
-    <>
-      This action cannot be undone. This will permanently delete{" "}
-      <span className="font-semibold">{item.name}</span> from your food page.
-    </>
-  );
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle>{`Delete ${item.name}?`}</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete{" "}
+            <span className="font-semibold">{item.name}</span> from your menu.
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
