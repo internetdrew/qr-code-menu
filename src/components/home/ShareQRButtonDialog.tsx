@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
-import { Copy, Download, ExternalLink, QrCode } from "lucide-react";
+import { Copy, Download, QrCode } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -300,19 +300,6 @@ const ShareQRButtonDialog = ({
 
   const actionsDisabled = !publicUrl;
 
-  const dialogDescription = (
-    <>
-      {"description here"}
-      <a
-        href={storeUrl}
-        className="inline-flex items-center gap-1 font-medium text-neutral-900 underline decoration-neutral-300 underline-offset-4 transition-colors hover:decoration-neutral-600"
-      >
-        View live food page.
-        <ExternalLink className="size-3.5" />
-      </a>
-    </>
-  );
-
   const QRActions = (
     <div className="flex w-full flex-col gap-2">
       <Button className="flex-1" onClick={handleCopyLink} disabled={copied}>
@@ -342,9 +329,9 @@ const ShareQRButtonDialog = ({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-base">{"title"}</DialogTitle>
+          <DialogTitle className="text-base">Share your menu</DialogTitle>
           <DialogDescription className={""}>
-            {dialogDescription}
+            You can copy your public page link and download your QR code.
           </DialogDescription>
         </DialogHeader>
         {qrCode}
