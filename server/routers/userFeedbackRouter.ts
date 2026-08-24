@@ -1,9 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "../trpc.js";
+import { feedbackLimitedProcedure, router } from "../trpc.js";
 import { userFeedbackFieldsSchema } from "../../shared/userFeedback.js";
 
 export const userFeedbackRouter = router({
-  submit: protectedProcedure
+  submit: feedbackLimitedProcedure
     .input(userFeedbackFieldsSchema)
     .mutation(async ({ input, ctx }) => {
       const feedback = input.feedback.trim();

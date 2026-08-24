@@ -3,9 +3,8 @@ import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import BackToTopButton from "@/components/store-page/BackToTopButton";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router";
+import { useLocation } from "react-router";
 import { NotFound } from "./NotFoundPage";
-import StoreUnavailable from "../components/StoreUnavailable";
 import { LayoutGroup, useReducedMotion } from "motion/react";
 import StorePreviewBanner from "@/components/StorePreviewBanner";
 import StoreLogo from "@/components/StoreLogo";
@@ -34,32 +33,22 @@ type StoreData = StoreRecord & {
 };
 
 export const Store = () => {
-  const { storeSlug } = useParams<{ storeSlug: string }>();
   const { hash, pathname, search } = useLocation();
   const prefersReducedMotion = useReducedMotion();
   const { user, isLoading: authLoading } = useAuth();
   const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
 
-  const isPreview = pathname.startsWith("/preview/");
-
   const userStoreQuery = useQuery(
     trpc.store.getForUser.queryOptions(undefined, {
-      enabled: isPreview && !authLoading && !!user,
+      enabled: !authLoading && !!user,
     }),
   );
 
-  const publicStoreQuery = useQuery(
-    trpc.store.getPublic.queryOptions(
-      { storeSlug: storeSlug ?? "" },
-      { enabled: !isPreview && !!storeSlug },
-    ),
-  );
-
-  const previewStoreId = isPreview ? userStoreQuery.data?.id : undefined;
+  const previewStoreId = userStoreQuery.data?.id;
   const {
-    data: previewStoreData,
-    isLoading: previewStoreIsLoading,
-    error: previewStoreError,
+    data: store,
+    isLoading: storePreviewIsLoading,
+    error: storePreviewError,
   } = useQuery(
     trpc.store.getPreview.queryOptions(
       { storeId: previewStoreId ?? "" },
@@ -68,16 +57,10 @@ export const Store = () => {
       },
     ),
   );
-  const store = (isPreview ? previewStoreData : publicStoreQuery.data) as
-    | StoreData
-    | null
-    | undefined;
-  const storeIsLoading = isPreview
-    ? authLoading || userStoreQuery.isLoading || previewStoreIsLoading
-    : publicStoreQuery.isLoading;
-  const error = isPreview
-    ? userStoreQuery.error || previewStoreError
-    : publicStoreQuery.error;
+  const storeData = store as StoreData | null | undefined;
+  const storeIsLoading =
+    authLoading || userStoreQuery.isLoading || storePreviewIsLoading;
+  const error = userStoreQuery.error || storePreviewError;
 
   const navRef = useRef<HTMLElement>(null);
 
@@ -94,13 +77,13 @@ export const Store = () => {
         });
       }
     }
-  }, [hash, store]);
+  }, [hash, storeData]);
 
-  const categoriesWithItems = store?.store_menu_categories.filter(
+  const categoriesWithItems = storeData?.store_menu_categories.filter(
     (category) => category.items && category.items.length > 0,
   );
 
-  if (storeIsLoading || previewStoreIsLoading) {
+  if (storeIsLoading) {
     return (
       <div className="mx-auto w-full max-w-screen-sm px-4 py-8">
         <Skeleton className="mx-auto mb-6 h-8 w-1/4" />
@@ -111,7 +94,7 @@ export const Store = () => {
     );
   }
 
-  if (!store || error) {
+  if (!storeData || error) {
     return (
       <NotFound
         title="Store Not Found"
@@ -122,30 +105,27 @@ export const Store = () => {
     );
   }
 
-  if (!isPreview && store && !store.is_published) {
-    return <StoreUnavailable storeName={store.name} />;
-  }
-
   return (
     <LayoutGroup id="store-item-images">
       <div className="relative flex min-h-dvh flex-col">
-        {isPreview && (
-          <StorePreviewBanner
-            isPublished={store.is_published}
-            publicStoreDomain={publicStoreDomain}
-            store={store}
-          />
-        )}
+        <StorePreviewBanner
+          isPublished={storeData.is_published}
+          publicStoreDomain={publicStoreDomain}
+          store={storeData}
+        />
 
         <div className="mx-auto mt-6 w-full max-w-xl flex-1 px-4">
           <StoreNavigation
             ref={navRef}
             categories={categoriesWithItems}
             prefersReducedMotion={prefersReducedMotion}
-            storeName={store.name}
+            storeName={storeData.name}
           />
-          {store.image_url && (
-            <StoreLogo imageUrl={store.image_url} storeName={store.name} />
+          {storeData.image_url && (
+            <StoreLogo
+              imageUrl={storeData.image_url}
+              storeName={storeData.name}
+            />
           )}
 
           <StoreCategoriesWithItems

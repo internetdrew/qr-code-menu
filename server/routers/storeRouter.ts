@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, publicProcedure, router } from "../trpc.js";
+import {
+  protectedMutationLimitedProcedure,
+  protectedProcedure,
+  router,
+} from "../trpc.js";
 import { supabaseAdminClient } from "../supabase.js";
 import { storeNameSchema } from "../../shared/storeName.js";
 import { storeSlugSchema } from "../../shared/storeSlug.js";
@@ -11,7 +15,7 @@ import {
 import { fetchStoreWithCategories } from "../utils/fetchStoreWithCategories.js";
 
 export const storeRouter = router({
-  create: protectedProcedure
+  create: protectedMutationLimitedProcedure
     .input(
       z.object({
         name: storeNameSchema,
@@ -108,7 +112,7 @@ export const storeRouter = router({
         excludeStoreId: input.storeId,
       });
     }),
-  update: protectedProcedure
+  update: protectedMutationLimitedProcedure
     .input(
       z
         .object({
@@ -221,7 +225,7 @@ export const storeRouter = router({
 
       return data;
     }),
-  delete: protectedProcedure
+  delete: protectedMutationLimitedProcedure
     .input(
       z.object({
         storeId: z.uuid(),
@@ -270,29 +274,5 @@ export const storeRouter = router({
       }
 
       return fetchStoreWithCategories(ctx.supabase, { storeId: input.storeId });
-    }),
-  getPublic: publicProcedure
-    .input(z.object({ storeSlug: z.string() }))
-    .query(async ({ input }) => {
-      const { data: store, error } = await supabaseAdminClient
-        .from("stores")
-        .select("id, is_published")
-        .eq("menu_slug", input.storeSlug)
-        .maybeSingle();
-
-      if (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: error.message,
-        });
-      }
-
-      if (!store?.is_published) {
-        return null;
-      }
-
-      return fetchStoreWithCategories(supabaseAdminClient, {
-        storeId: store.id,
-      });
     }),
 });
