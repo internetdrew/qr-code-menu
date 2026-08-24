@@ -10,7 +10,6 @@ import {
   FormMessage,
   Form,
 } from "../ui/form";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
@@ -26,6 +25,7 @@ import {
   storeCategoryFieldsSchema,
 } from "../../../shared/storeCategory";
 import RemainingCharacters from "./RemainingCharacters";
+import { AnimatedSubmitButton } from "./AnimatedSubmitButton";
 
 interface CategoryFormProps {
   onSuccess: () => void;
@@ -167,18 +167,12 @@ const CategoryForm = ({ onSuccess, category }: CategoryFormProps) => {
           )}
         />
         <div className="flex justify-end">
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting || !form.formState.isDirty}
-          >
-            {form.formState.isSubmitting
-              ? category
-                ? "Updating..."
-                : "Creating..."
-              : category
-                ? "Update"
-                : "Create"}
-          </Button>
+          <AnimatedSubmitButton
+            isSubmitting={form.formState.isSubmitting}
+            disabled={!form.formState.isDirty}
+            idleLabel={category ? "Update" : "Create"}
+            submittingLabel={category ? "Updating..." : "Creating..."}
+          />
         </div>
       </form>
     </Form>

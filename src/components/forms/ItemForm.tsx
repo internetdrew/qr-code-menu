@@ -30,6 +30,7 @@ import {
 } from "../../../shared/storeItem";
 import type { StorePreviewCategory, StorePreviewItem } from "@/types/store";
 import RemainingCharacters from "./RemainingCharacters";
+import { AnimatedSubmitButton } from "./AnimatedSubmitButton";
 
 interface ItemFormProps {
   onSuccess: () => void;
@@ -543,22 +544,14 @@ const ItemForm = (props: ItemFormProps) => {
           )}
         />
         <div className="flex justify-end">
-          <Button
-            type="submit"
+          <AnimatedSubmitButton
+            isSubmitting={form.formState.isSubmitting || isProcessingImage}
             disabled={
-              form.formState.isSubmitting ||
-              isProcessingImage ||
               (!form.formState.isDirty && !selectedImageFile && !removedImage)
             }
-          >
-            {item
-              ? form.formState.isSubmitting || isProcessingImage
-                ? "Updating..."
-                : "Update"
-              : form.formState.isSubmitting || isProcessingImage
-                ? "Creating..."
-                : "Create"}
-          </Button>
+            idleLabel={item ? "Update" : "Create"}
+            submittingLabel={item ? "Updating..." : "Creating..."}
+          />
         </div>
       </form>
     </Form>

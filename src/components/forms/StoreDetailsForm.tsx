@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowUpFromLine, Image as ImageIcon, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+// import { ArrowUpFromLine, Image as ImageIcon, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import type { ChangeEvent } from "react";
+// import type { ChangeEvent } from "react";
 import type { StoreRecord } from "@/types/store";
 import { supabaseBrowserClient } from "@/lib/supabase";
 import { trpc } from "@/utils/trpc";
-import { Button } from "../ui/button";
-import { Field, FieldDescription, FieldLabel } from "../ui/field";
+// import { Button } from "../ui/button";
+// import { Field, FieldDescription, FieldLabel } from "../ui/field";
 import {
   Form,
   FormControl,
@@ -33,22 +33,17 @@ const formSchema = z.object({
   name: storeNameSchema,
 });
 
-const PUBLIC_STORE_DOMAIN =
-  import.meta.env.VITE_PUBLIC_STORE_DOMAIN ||
-  import.meta.env.VITE_PUBLIC_MENU_DOMAIN ||
-  "https://menunook.com";
-
 const STORE_LOGO_BUCKET = "store_logos";
-const MAX_RAW_IMAGE_BYTES = 25 * 1024 * 1024;
-const MAX_COMPRESSED_IMAGE_EDGE = 1600;
+// const MAX_RAW_IMAGE_BYTES = 25 * 1024 * 1024;
+// const MAX_COMPRESSED_IMAGE_EDGE = 1600;
 const COMPRESSED_IMAGE_TYPE = "image/webp";
 const COMPRESSED_IMAGE_EXTENSION = "webp";
-const COMPRESSED_IMAGE_QUALITY = 0.82;
-const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ACCEPTED_IMAGE_INPUT_TYPES = "image/jpeg,image/png,image/webp";
+// const COMPRESSED_IMAGE_QUALITY = 0.82;
+// const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+// const ACCEPTED_IMAGE_INPUT_TYPES = "image/jpeg,image/png,image/webp";
 
-const formatBytesAsMb = (bytes: number) =>
-  `${Math.round((bytes / 1024 / 1024) * 10) / 10}MB`;
+// const formatBytesAsMb = (bytes: number) =>
+//   `${Math.round((bytes / 1024 / 1024) * 10) / 10}MB`;
 
 const getStoreLogoFilePath = (storeId: string, file: File) => {
   const extension =
@@ -59,78 +54,78 @@ const getStoreLogoFilePath = (storeId: string, file: File) => {
   return `store/${storeId}/logo/image_${Date.now()}.${extension}`;
 };
 
-const loadImage = (file: File) =>
-  new Promise<HTMLImageElement>((resolve, reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
+// const loadImage = (file: File) =>
+//   new Promise<HTMLImageElement>((resolve, reject) => {
+//     const objectUrl = URL.createObjectURL(file);
+//     const image = new Image();
 
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Could not read the selected image."));
-    };
-    image.src = objectUrl;
-  });
+//     image.onload = () => {
+//       URL.revokeObjectURL(objectUrl);
+//       resolve(image);
+//     };
+//     image.onerror = () => {
+//       URL.revokeObjectURL(objectUrl);
+//       reject(new Error("Could not read the selected image."));
+//     };
+//     image.src = objectUrl;
+//   });
 
-const canvasToBlob = (
-  canvas: HTMLCanvasElement,
-  type: string,
-  quality: number,
-) =>
-  new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          reject(new Error("Could not compress the selected image."));
-          return;
-        }
+// const canvasToBlob = (
+//   canvas: HTMLCanvasElement,
+//   type: string,
+//   quality: number,
+// ) =>
+//   new Promise<Blob>((resolve, reject) => {
+//     canvas.toBlob(
+//       (blob) => {
+//         if (!blob) {
+//           reject(new Error("Could not compress the selected image."));
+//           return;
+//         }
 
-        resolve(blob);
-      },
-      type,
-      quality,
-    );
-  });
+//         resolve(blob);
+//       },
+//       type,
+//       quality,
+//     );
+//   });
 
-const getCompressedImageName = (fileName: string) => {
-  const baseName = fileName.replace(/\.[^.]+$/, "") || "store-logo";
-  return `${baseName}.${COMPRESSED_IMAGE_EXTENSION}`;
-};
+// const getCompressedImageName = (fileName: string) => {
+//   const baseName = fileName.replace(/\.[^.]+$/, "") || "store-logo";
+//   return `${baseName}.${COMPRESSED_IMAGE_EXTENSION}`;
+// };
 
-const compressImageFile = async (file: File) => {
-  const image = await loadImage(file);
-  const scale = Math.min(
-    1,
-    MAX_COMPRESSED_IMAGE_EDGE / Math.max(image.width, image.height),
-  );
-  const width = Math.max(1, Math.round(image.width * scale));
-  const height = Math.max(1, Math.round(image.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+// const compressImageFile = async (file: File) => {
+//   const image = await loadImage(file);
+//   const scale = Math.min(
+//     1,
+//     MAX_COMPRESSED_IMAGE_EDGE / Math.max(image.width, image.height),
+//   );
+//   const width = Math.max(1, Math.round(image.width * scale));
+//   const height = Math.max(1, Math.round(image.height * scale));
+//   const canvas = document.createElement("canvas");
+//   canvas.width = width;
+//   canvas.height = height;
 
-  const context = canvas.getContext("2d");
+//   const context = canvas.getContext("2d");
 
-  if (!context) {
-    throw new Error("Could not prepare the selected image.");
-  }
+//   if (!context) {
+//     throw new Error("Could not prepare the selected image.");
+//   }
 
-  context.drawImage(image, 0, 0, width, height);
+//   context.drawImage(image, 0, 0, width, height);
 
-  const blob = await canvasToBlob(
-    canvas,
-    COMPRESSED_IMAGE_TYPE,
-    COMPRESSED_IMAGE_QUALITY,
-  );
+//   const blob = await canvasToBlob(
+//     canvas,
+//     COMPRESSED_IMAGE_TYPE,
+//     COMPRESSED_IMAGE_QUALITY,
+//   );
 
-  return new File([blob], getCompressedImageName(file.name), {
-    type: COMPRESSED_IMAGE_TYPE,
-    lastModified: Date.now(),
-  });
-};
+//   return new File([blob], getCompressedImageName(file.name), {
+//     type: COMPRESSED_IMAGE_TYPE,
+//     lastModified: Date.now(),
+//   });
+// };
 
 interface StoreDetailsFormProps {
   store: StoreRecord;
@@ -143,15 +138,14 @@ export const StoreDetailsForm = ({
 }: StoreDetailsFormProps) => {
   const updateStore = useMutation(trpc.store.update.mutationOptions());
   const queryClient = useQueryClient();
-  const fileInputId = useId();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  // const fileInputId = useId();
+  // const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     store.image_url ?? null,
   );
   const [removedImage, setRemovedImage] = useState(false);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
-  const publicStoreUrl = `${PUBLIC_STORE_DOMAIN}/m/${store.menu_slug}`;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -182,76 +176,76 @@ export const StoreDetailsForm = ({
     };
   }, [previewUrl]);
 
-  const clearPreview = useCallback(() => {
-    setPreviewUrl((currentPreviewUrl) => {
-      if (currentPreviewUrl?.startsWith("blob:")) {
-        URL.revokeObjectURL(currentPreviewUrl);
-      }
+  // const clearPreview = useCallback(() => {
+  //   setPreviewUrl((currentPreviewUrl) => {
+  //     if (currentPreviewUrl?.startsWith("blob:")) {
+  //       URL.revokeObjectURL(currentPreviewUrl);
+  //     }
 
-      return null;
-    });
-  }, []);
+  //     return null;
+  //   });
+  // }, []);
 
-  const openFilePicker = () => {
-    if (form.formState.isSubmitting || isProcessingImage) {
-      return;
-    }
+  // const openFilePicker = () => {
+  //   if (form.formState.isSubmitting || isProcessingImage) {
+  //     return;
+  //   }
 
-    fileInputRef.current?.click();
-  };
+  //   fileInputRef.current?.click();
+  // };
 
-  const handleImageSelected = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
+  // const handleImageSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   event.target.value = "";
 
-    if (!file) {
-      return;
-    }
+  //   if (!file) {
+  //     return;
+  //   }
 
-    if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
-      toast.error("Please choose a JPEG, PNG, or WebP image.");
-      return;
-    }
+  //   if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
+  //     toast.error("Please choose a JPEG, PNG, or WebP image.");
+  //     return;
+  //   }
 
-    if (file.size > MAX_RAW_IMAGE_BYTES) {
-      toast.error(
-        `Please choose an image smaller than ${formatBytesAsMb(
-          MAX_RAW_IMAGE_BYTES,
-        )}.`,
-      );
-      return;
-    }
+  //   if (file.size > MAX_RAW_IMAGE_BYTES) {
+  //     toast.error(
+  //       `Please choose an image smaller than ${formatBytesAsMb(
+  //         MAX_RAW_IMAGE_BYTES,
+  //       )}.`,
+  //     );
+  //     return;
+  //   }
 
-    setIsProcessingImage(true);
+  //   setIsProcessingImage(true);
 
-    try {
-      const compressedFile = await compressImageFile(file);
+  //   try {
+  //     const compressedFile = await compressImageFile(file);
 
-      clearPreview();
-      setSelectedImageFile(compressedFile);
-      setRemovedImage(false);
-      setPreviewUrl(URL.createObjectURL(compressedFile));
+  //     clearPreview();
+  //     setSelectedImageFile(compressedFile);
+  //     setRemovedImage(false);
+  //     setPreviewUrl(URL.createObjectURL(compressedFile));
 
-      if (compressedFile.size < file.size) {
-        toast.success(
-          `Image optimized from ${formatBytesAsMb(
-            file.size,
-          )} to ${formatBytesAsMb(compressedFile.size)}.`,
-        );
-      }
-    } catch (error) {
-      console.error("Failed to process selected image:", error);
-      toast.error("Failed to process that image. Please try another file.");
-    } finally {
-      setIsProcessingImage(false);
-    }
-  };
+  //     if (compressedFile.size < file.size) {
+  //       toast.success(
+  //         `Image optimized from ${formatBytesAsMb(
+  //           file.size,
+  //         )} to ${formatBytesAsMb(compressedFile.size)}.`,
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to process selected image:", error);
+  //     toast.error("Failed to process that image. Please try another file.");
+  //   } finally {
+  //     setIsProcessingImage(false);
+  //   }
+  // };
 
-  const handleRemoveImage = () => {
-    clearPreview();
-    setSelectedImageFile(null);
-    setRemovedImage(true);
-  };
+  // const handleRemoveImage = () => {
+  //   clearPreview();
+  //   setSelectedImageFile(null);
+  //   setRemovedImage(true);
+  // };
 
   const uploadStoreLogo = async (file: File) => {
     const filePath = getStoreLogoFilePath(store.id, file);
@@ -352,21 +346,7 @@ export const StoreDetailsForm = ({
             )}
           />
 
-          <Field>
-            <FieldLabel>Public store link</FieldLabel>
-            <a
-              href={publicStoreUrl}
-              className="text-sm font-medium break-all underline decoration-neutral-300 underline-offset-4 transition-colors hover:decoration-neutral-600"
-            >
-              {publicStoreUrl}
-            </a>
-            <FieldDescription>
-              This link is set when the store is created and cannot be changed
-              later.
-            </FieldDescription>
-          </Field>
-
-          <Field>
+          {/* <Field>
             <FieldLabel htmlFor={fileInputId}>Store Logo</FieldLabel>
             <div className="flex items-center gap-4">
               <button
@@ -429,7 +409,7 @@ export const StoreDetailsForm = ({
                 </FieldDescription>
               </div>
             </div>
-          </Field>
+          </Field> */}
 
           <div className="flex justify-end">
             <AnimatedSubmitButton

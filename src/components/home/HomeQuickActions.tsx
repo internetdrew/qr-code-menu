@@ -1,15 +1,23 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Globe, LogOut, Settings, Store, X } from "lucide-react";
+import {
+  Globe,
+  LogOut,
+  MessageSquareText,
+  Settings,
+  Store,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useStoreContext } from "@/contexts/StoreContext";
 import { Button } from "../ui/button";
 import FormDialog from "../dialogs/FormDialog";
 import { StoreDetailsForm } from "../forms/StoreDetailsForm";
 import { StoreDiscoveryForm } from "../forms/StoreDiscoveryForm";
+import UserFeedbackForm from "../forms/UserFeedbackForm";
 import { signOut } from "@/lib/auth";
 import { toast } from "sonner";
 
-type QuickActionDialog = "store" | "search";
+type QuickActionDialog = "store" | "search" | "feedback";
 
 const actionStagger = 0.035;
 
@@ -93,6 +101,11 @@ const HomeQuickActions = () => {
       label: "Store profile",
       icon: Store,
       onSelect: () => openDialog("store"),
+    },
+    {
+      label: "Send feedback",
+      icon: MessageSquareText,
+      onSelect: () => openDialog("feedback"),
     },
     {
       label: "Log out",
@@ -222,6 +235,15 @@ const HomeQuickActions = () => {
             store={store}
             onSuccess={() => setActiveDialog(null)}
           />
+        }
+      />
+      <FormDialog
+        title="Send feedback"
+        description="Tell us what is confusing, broken, or could be better."
+        isDialogOpen={activeDialog === "feedback"}
+        setIsDialogOpen={(open) => setActiveDialog(open ? "feedback" : null)}
+        formComponent={
+          <UserFeedbackForm onSuccess={() => setActiveDialog(null)} />
         }
       />
     </>
