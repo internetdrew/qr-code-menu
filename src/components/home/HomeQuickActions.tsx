@@ -3,6 +3,7 @@ import {
   Globe,
   LogOut,
   MessageSquareText,
+  RadioTower,
   Settings,
   Store,
   X,
@@ -14,10 +15,11 @@ import FormDialog from "../dialogs/FormDialog";
 import { StoreDetailsForm } from "../forms/StoreDetailsForm";
 import { StoreDiscoveryForm } from "../forms/StoreDiscoveryForm";
 import UserFeedbackForm from "../forms/UserFeedbackForm";
+import PublishingDialog from "./PublishingDialog";
 import { signOut } from "@/lib/auth";
 import { toast } from "sonner";
 
-type QuickActionDialog = "store" | "search" | "feedback";
+type QuickActionDialog = "publishing" | "store" | "search" | "feedback";
 
 const actionStagger = 0.035;
 
@@ -92,6 +94,11 @@ const HomeQuickActions = () => {
   };
 
   const actions = [
+    {
+      label: "Public page",
+      icon: RadioTower,
+      onSelect: () => openDialog("publishing"),
+    },
     {
       label: "Search Appearance",
       icon: Globe,
@@ -213,6 +220,14 @@ const HomeQuickActions = () => {
         </Button>
       </div>
 
+      <PublishingDialog
+        isOpen={activeDialog === "publishing"}
+        onOpenChange={(open) => setActiveDialog(open ? "publishing" : null)}
+        isPublished={store.is_published}
+        storeId={store.id}
+        storeMenuSlug={store.menu_slug}
+        storeName={store.name}
+      />
       <FormDialog
         title="Search Appearance"
         description="Tune how your store appears in search results."
