@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll } from "vitest";
 import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
 import { server } from "@/mocks/node";
 import { queryClient } from "@/utils/trpc";
 import { setLoaderAuthMockForTest } from "@/utils/loaderAuth";
@@ -61,6 +62,7 @@ beforeAll(() =>
 );
 
 afterEach(() => {
+  cleanup();
   server.resetHandlers();
   queryClient.clear();
   setLoaderAuthMockForTest(undefined);
