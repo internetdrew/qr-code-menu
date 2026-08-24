@@ -1,21 +1,26 @@
-import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../trpc.js";
+import { userFeedbackFieldsSchema } from "../../shared/userFeedback.js";
 
 export const userFeedbackRouter = router({
   submit: protectedProcedure
-    .input(
-      z.object({
-        feedback: z.string().min(1).max(500),
-      }),
-    )
+    .input(userFeedbackFieldsSchema)
     .mutation(async ({ input, ctx }) => {
-      const { feedback } = input;
+      const feedback = input.feedback.trim();
+      const email = ctx.user.email;
+
+      if (!email) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "A signed-in email address is required to submit feedback.",
+        });
+      }
 
       const { data: newFeedback, error: feedbackError } = await ctx.supabase
         .from("user_feedback")
         .insert({
           user_id: ctx.user.id,
+          email,
           feedback,
         })
         .select()
