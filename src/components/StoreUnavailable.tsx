@@ -32,7 +32,7 @@ const StoreUnavailable = ({ storeName }: StoreUnavailableProps) => {
         </CardHeader>
         <CardContent>
           <p className="text-sm">
-            The store owner needs to make their food page public before it can be
+            The store owner needs to make their menu public before it can be
             viewed.
           </p>
           <Item variant="outline" className="mt-6">
@@ -42,7 +42,7 @@ const StoreUnavailable = ({ storeName }: StoreUnavailableProps) => {
             <ItemContent>
               <ItemTitle>Are you the account owner?</ItemTitle>
               <ItemDescription>
-                Update your subscription to go live.
+                Publish your store to go live.
               </ItemDescription>
             </ItemContent>
           </Item>

@@ -1,5 +1,6 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { describe, expect, it } from "vitest";
 import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
@@ -21,6 +22,7 @@ const store = {
   created_at: "2026-01-01T00:00:00Z",
   image_path: null,
   image_url: null,
+  is_published: false,
   menu_seo_description: "Fresh lunch favorites.",
   menu_seo_title: "Sunny Deli Menu",
   menu_slug: "sunny-deli",
@@ -54,27 +56,45 @@ const sandwichCategory = {
   ],
 };
 
-const createPreviewStore = (categories = [sandwichCategory]) => ({
-  ...store,
+const createPreviewStore = (
+  categories = [sandwichCategory],
+  storeData = store,
+) => ({
+  ...storeData,
   store_menu_categories: categories,
 });
 
 const useStoreHandlers = ({
   categories = [sandwichCategory],
+  isPublished = false,
   onFeedbackSubmit,
+  onStoreUpdate,
 }: {
   categories?: (typeof sandwichCategory)[];
+  isPublished?: boolean;
   onFeedbackSubmit?: (feedback: string) => void;
+  onStoreUpdate?: (input: unknown) => void;
 } = {}) => {
   let currentCategories = categories;
+  let currentStore = { ...store, is_published: isPublished };
 
   server.use(
     createTrpcQueryHandler({
-      "store.getForUser": () => ({ result: { data: store } }),
+      "store.getForUser": () => ({ result: { data: currentStore } }),
       "store.getPreview": () => ({
-        result: { data: createPreviewStore(currentCategories) },
+        result: { data: createPreviewStore(currentCategories, currentStore) },
       }),
-      "subscription.getForStore": () => ({ result: { data: null } }),
+      "store.update": (input) => {
+        const values = input as { isPublished?: boolean };
+        onStoreUpdate?.(input);
+
+        currentStore = {
+          ...currentStore,
+          is_published: values.isPublished ?? currentStore.is_published,
+        };
+
+        return { result: { data: currentStore } };
+      },
       "storeCategory.create": (input) => {
         const values = input as { name: string; description?: string };
         const createdCategory = {
@@ -258,7 +278,7 @@ describe("home route", () => {
     ).toBeInTheDocument();
   });
 
-  it("lets an owner preview the food page after creating a store", async () => {
+  it("lets an owner preview the menu after creating a store", async () => {
     const user = userEvent.setup();
     useStoreHandlers();
 
@@ -273,6 +293,190 @@ describe("home route", () => {
     expect(
       screen.getByRole("heading", { name: "Sunny Deli" }),
     ).toBeInTheDocument();
+  });
+
+  it("lets an owner publish a store from quick actions", async () => {
+    const user = userEvent.setup();
+    let updateInput: unknown;
+    useStoreHandlers({
+      onStoreUpdate: (input) => {
+        updateInput = input;
+      },
+    });
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    expect(
+      await screen.findByLabelText("Menu status: Hidden"),
+    ).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: /preview/i })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^view$/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /share/i }),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Open quick actions" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Menu visibility" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Customers can't view your menu while it's hidden."),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog", { name: "Menu visibility" })).getByText(
+        "Hidden",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Publish menu" }));
+
+    await waitFor(() => {
+      expect(updateInput).toMatchObject({
+        id: store.id,
+        isPublished: true,
+      });
+    });
+    expect(
+      await screen.findByRole("button", { name: /share/i }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText("Menu status: Live"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^view$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the public page dialog open when publishing fails", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers();
+    server.use(
+      http.post("/trpc/store.update", () =>
+        HttpResponse.json(
+          {
+            error: {
+              message: "Publishing failed",
+              code: -32603,
+              data: {
+                code: "INTERNAL_SERVER_ERROR",
+                httpStatus: 500,
+                path: "store.update",
+              },
+            },
+          },
+          { status: 500 },
+        ),
+      ),
+    );
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open quick actions" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+    await user.click(screen.getByRole("button", { name: "Publish menu" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Menu visibility" }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog", { name: "Menu visibility" })).getByText(
+        "Hidden",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /preview/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^view$/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /share/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("Failed to update publishing. Please try again."),
+    ).toBeInTheDocument();
+  });
+
+  it("confirms before unpublishing a store from quick actions", async () => {
+    const user = userEvent.setup();
+    let updateInput: unknown;
+    useStoreHandlers({
+      isPublished: true,
+      onStoreUpdate: (input) => {
+        updateInput = input;
+      },
+    });
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    expect(
+      await screen.findByLabelText("Menu status: Live"),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /share/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^view$/i }),
+    ).not.toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Open quick actions" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Menu visibility" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Customers can view your live menu."),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog", { name: "Menu visibility" })).getByText(
+        "Live",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View live page" })).toHaveAttribute(
+      "href",
+      "https://menunook.com/m/sunny-deli",
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Unpublish menu" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Unpublish menu?" }),
+    ).toBeInTheDocument();
+    expect(updateInput).toBeUndefined();
+
+    await user.click(screen.getByRole("button", { name: "Unpublish" }));
+
+    await waitFor(() => {
+      expect(updateInput).toMatchObject({
+        id: store.id,
+        isPublished: false,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: /preview/i })).toBeInTheDocument();
+    });
   });
 
   it("shows the empty categories state when a store has no categories", async () => {
@@ -313,7 +517,6 @@ describe("home route", () => {
         "store.getPreview": async () => ({
           result: { data: await previewRequest },
         }),
-        "subscription.getForStore": () => ({ result: { data: null } }),
       }),
     );
 
@@ -352,7 +555,7 @@ describe("home route", () => {
     expect(screen.queryByText("No categories created")).not.toBeInTheDocument();
   });
 
-  it("lets an owner open store profile and search appearance settings", async () => {
+  it("lets an owner open store profile from quick actions", async () => {
     const user = userEvent.setup();
     useStoreHandlers();
 
@@ -370,10 +573,44 @@ describe("home route", () => {
       await screen.findByRole("heading", { name: "Store profile" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Store Name")).toHaveValue("Sunny Deli");
+  });
 
-    await user.keyboard("{Escape}");
+  it("keeps store profile in quick actions", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers();
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
     await user.click(
-      screen.getByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open quick actions" }),
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Store profile" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Send feedback" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Edit store profile" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets an owner open search appearance from quick actions", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers();
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open quick actions" }),
     );
     await user.click(screen.getByRole("button", { name: "Search Appearance" }));
 

@@ -4,15 +4,17 @@ import { describe, expect, it, vi } from "vitest";
 import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
-import { authedUserState } from "@/utils/test/userStates";
+import { authedUserState, noUserState } from "@/utils/test/userStates";
 import type { StoreCategory } from "@/pages/StorePage";
 import "@/pages/StorePage";
+import { toast } from "sonner";
 
 const store = {
   id: "11111111-1111-4111-8111-111111111111",
   created_at: "2026-01-01T00:00:00Z",
   image_path: null,
   image_url: null,
+  is_published: false,
   menu_seo_description: null,
   menu_seo_title: null,
   menu_slug: "sunny-deli",
@@ -59,7 +61,6 @@ describe("store preview route", () => {
       createTrpcQueryHandler({
         "store.getForUser": () => ({ result: { data: store } }),
         "store.getPreview": () => ({ result: { data: previewData } }),
-        "subscription.getForStore": () => ({ result: { data: null } }),
       }),
     );
   };
@@ -80,11 +81,82 @@ describe("store preview route", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Turkey Club")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "subscribe" }),
+      screen.getByText("Your menu is hidden from customers."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Publish menu" }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Open category menu" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("lets an owner publish the menu from the preview banner", async () => {
+    const user = userEvent.setup();
+    const toastSuccess = vi.spyOn(toast, "success");
+    let updateInput: unknown;
+    let currentStore = { ...store };
+    let currentPreviewStore = { ...previewStore };
+
+    server.use(
+      createTrpcQueryHandler({
+        "store.getForUser": () => ({ result: { data: currentStore } }),
+        "store.getPreview": () => ({
+          result: { data: currentPreviewStore },
+        }),
+        "store.update": (input) => {
+          const values = input as { isPublished?: boolean };
+          updateInput = input;
+          currentStore = {
+            ...currentStore,
+            is_published: values.isPublished ?? currentStore.is_published,
+          };
+          currentPreviewStore = {
+            ...currentPreviewStore,
+            is_published:
+              values.isPublished ?? currentPreviewStore.is_published,
+          };
+
+          return { result: { data: currentStore } };
+        },
+      }),
+    );
+
+    renderApp({
+      initialEntries: ["/preview/store"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Publish menu" }),
+    );
+
+    expect(
+      await screen.findByRole("heading", { name: "Menu visibility" }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Publish menu" }));
+
+    await waitFor(() => {
+      expect(updateInput).toMatchObject({
+        id: store.id,
+        isPublished: true,
+      });
+    });
+    expect(
+      await screen.findByText("This is a preview of your live menu."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "Visit live menu" }),
+    ).toHaveAttribute("href", "https://menunook.com/m/sunny-deli");
+    expect(toastSuccess).toHaveBeenCalledWith(
+      "Sunny Deli is now live.",
+      expect.objectContaining({
+        action: expect.objectContaining({
+          label: "View live menu",
+        }),
+      }),
+    );
   });
 
   it("lets an owner inspect an item image from the preview", async () => {
@@ -213,18 +285,18 @@ describe("store preview route", () => {
     ).toBeInTheDocument();
   });
 
-  it("links active store previews to the public menu slug URL", async () => {
+  it("links published store previews to the public menu slug URL", async () => {
+    const publishedStore = { ...store, is_published: true };
+    const publishedPreviewStore = {
+      ...previewStore,
+      is_published: true,
+    };
+
     server.use(
       createTrpcQueryHandler({
-        "store.getForUser": () => ({ result: { data: store } }),
-        "store.getPreview": () => ({ result: { data: previewStore } }),
-        "subscription.getForStore": () => ({
-          result: {
-            data: {
-              status: "active",
-              current_period_end: "2099-01-01T00:00:00Z",
-            },
-          },
+        "store.getForUser": () => ({ result: { data: publishedStore } }),
+        "store.getPreview": () => ({
+          result: { data: publishedPreviewStore },
         }),
       }),
     );
@@ -235,7 +307,51 @@ describe("store preview route", () => {
     });
 
     expect(
-      await screen.findByRole("link", { name: "live food page" }),
+      await screen.findByText("This is a preview of your live menu."),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: "Visit live menu" }),
     ).toHaveAttribute("href", "https://menunook.com/m/sunny-deli");
+  });
+
+  it("shows a published public store", async () => {
+    server.use(
+      createTrpcQueryHandler({
+        "store.getPublic": () => ({
+          result: { data: { ...previewStore, is_published: true } },
+        }),
+      }),
+    );
+
+    renderApp({
+      initialEntries: ["/m/sunny-deli"],
+      authMock: noUserState,
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "Sunny Deli" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Turkey Club")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/hidden from customers/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not show an unpublished public store", async () => {
+    server.use(
+      createTrpcQueryHandler({
+        "store.getPublic": () => ({ result: { data: null } }),
+      }),
+    );
+
+    renderApp({
+      initialEntries: ["/m/sunny-deli"],
+      authMock: noUserState,
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "Store Not Found" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Turkey Club")).not.toBeInTheDocument();
   });
 });

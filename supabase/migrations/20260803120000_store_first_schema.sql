@@ -689,4 +689,4 @@ using (
 );
 
 comment on table public.stores is 'Stores managed by users.';
-comment on table public.subscriptions is 'Subscriptions for each store, determining if that store food page is public.';
+comment on table public.subscriptions is 'Subscriptions for each store, determining if that store menu is public.';

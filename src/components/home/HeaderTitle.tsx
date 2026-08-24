@@ -1,23 +1,25 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/auth";
-import { trpc } from "@/utils/trpc";
+import type { StoreRecord } from "@/types/store";
+import { cn } from "@/lib/utils";
 
-const HeaderTitle = () => {
-  const { user } = useAuth();
-  const { data: store } = useQuery(
-    trpc.store.getForUser.queryOptions(undefined, {
-      enabled: !!user,
-    }),
-  );
+interface HeaderTitleProps {
+  store: StoreRecord | null;
+}
+
+const HeaderTitle = ({ store }: HeaderTitleProps) => {
   const shouldReduceMotion = useReducedMotion();
   const appTitle = store?.name ?? "MenuNook";
+  const statusLabel = store
+    ? store.is_published
+      ? "Live"
+      : "Hidden"
+    : null;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      <motion.h1
-        key={appTitle}
-        className="title menu-header truncate font-[560]"
+      <motion.div
+        key={`${appTitle}-${statusLabel ?? "no-store"}`}
+        className="flex min-w-0 items-center gap-2"
         initial={
           shouldReduceMotion
             ? { opacity: 0 }
@@ -35,8 +37,22 @@ const HeaderTitle = () => {
         }}
         style={{ willChange: "transform, filter, opacity" }}
       >
-        {appTitle}
-      </motion.h1>
+        <h1 className="title menu-header truncate font-[560]">{appTitle}</h1>
+        {statusLabel ? (
+          <span
+            aria-label={`Menu status: ${statusLabel}`}
+            className={cn(
+              "text-muted-foreground ml-1 inline-flex shrink-0 items-center gap-1 text-[11px] leading-4 font-medium",
+              store?.is_published
+                ? "[&>span]:bg-emerald-500"
+                : "[&>span]:bg-amber-500",
+            )}
+          >
+            <span className="size-1.5 rounded-full" aria-hidden="true" />
+            {statusLabel}
+          </span>
+        ) : null}
+      </motion.div>
     </AnimatePresence>
   );
 };

@@ -1,80 +1,83 @@
-import { trpc } from "@/utils/trpc";
-import { useMutation } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState, type FC } from "react";
-import { toast } from "sonner";
+import { Button } from "./ui/button";
+import PublishingDialog from "./home/PublishingDialog";
+import { linkClasses } from "@/constants";
 
 interface StorePreviewBannerProps {
-  subscriptionIsActive: boolean;
+  isPublished: boolean;
   publicStoreDomain: string;
-  store: { id: string; menu_slug: string };
+  store: { id: string; menu_slug: string; name: string };
 }
 
 const StorePreviewBanner: FC<StorePreviewBannerProps> = ({
-  subscriptionIsActive,
+  isPublished,
   publicStoreDomain,
   store,
 }) => {
-  const [connecting, setConnecting] = useState(false);
-  const stripeCheckoutMutation = useMutation(
-    trpc.stripe.createCheckoutSession.mutationOptions(),
-  );
-
-  const handleSubscribe = async () => {
-    setConnecting(true);
-    await stripeCheckoutMutation.mutateAsync(
-      { storeId: store?.id ?? "" },
-      {
-        onSuccess: (data) => {
-          window.location.assign(data.url);
-        },
-        onError: (error) => {
-          console.error("Error creating checkout session:", error);
-          toast.error("Error creating checkout session: " + error.message);
-        },
-      },
-    );
-  };
+  const shouldReduceMotion = useReducedMotion();
+  const [publishingDialogIsOpen, setPublishingDialogIsOpen] = useState(false);
 
   return (
-    <div className="sticky top-0 z-10 bg-neutral-500/5 py-4 text-center text-xs backdrop-blur-sm">
-      <div className="space-x-2 text-center">
-        {subscriptionIsActive ? (
-          <p>
-            This is a preview of your{" "}
-            <a href={`${publicStoreDomain}/m/${store.menu_slug}`}>
-              live food page
-            </a>
-            .
-          </p>
-        ) : (
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.p
-              transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-              initial={{ opacity: 0, y: -25 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 25 }}
-              key={connecting ? "connecting" : "subscribe"}
+    <>
+      <div className="sticky top-0 z-10 bg-neutral-500/5 py-4 text-center text-xs backdrop-blur-sm">
+        <div className="space-x-2 text-center">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={isPublished ? "live" : "hidden"}
+              className="inline-flex items-center gap-2"
+              initial={
+                shouldReduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, y: 5, filter: "blur(4px)" }
+              }
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={
+                shouldReduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, y: -5, filter: "blur(4px)" }
+              }
+              transition={{
+                duration: 0.18,
+                ease: [0.215, 0.61, 0.355, 1],
+              }}
+              style={{ willChange: "transform, filter, opacity" }}
             >
-              {connecting ? (
-                <>Now connecting you to the checkout...</>
+              {isPublished ? (
+                <>
+                  <span>This is a preview of your live menu.</span>
+                  <a
+                    href={`${publicStoreDomain}/m/${store.menu_slug}`}
+                    className={linkClasses}
+                  >
+                    Visit live menu
+                  </a>
+                </>
               ) : (
                 <>
-                  {"Your food page won't be visible to customers until you "}
-                  <button
-                    onClick={handleSubscribe}
-                    className="cursor-pointer font-medium underline decoration-neutral-300 underline-offset-4 transition duration-200 hover:decoration-neutral-600"
+                  <span>Your menu is hidden from customers.</span>
+                  <Button
+                    type="button"
+                    size="xs"
+                    onClick={() => setPublishingDialogIsOpen(true)}
                   >
-                    subscribe
-                  </button>
-                  .
+                    Publish menu
+                  </Button>
                 </>
               )}
-            </motion.p>
+            </motion.div>
           </AnimatePresence>
-        )}
+        </div>
       </div>
-    </div>
+      <PublishingDialog
+        isOpen={publishingDialogIsOpen}
+        onOpenChange={setPublishingDialogIsOpen}
+        isPublished={isPublished}
+        storeId={store.id}
+        storeMenuSlug={store.menu_slug}
+        storeName={store.name}
+      />
+    </>
   );
 };
 

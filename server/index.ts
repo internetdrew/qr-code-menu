@@ -12,9 +12,6 @@ import { storeRouter } from "./routers/storeRouter.js";
 import { storeQRCodeRouter } from "./routers/storeQRCodeRouter.js";
 import { storeCategoryRouter } from "./routers/storeCategoryRouter.js";
 import { storeCategoryItemRouter } from "./routers/storeCategoryItemRouter.js";
-import { stripeRouter } from "./routers/stripeRouter.js";
-import { subscriptionRouter } from "./routers/subscriptionRouter.js";
-import { stripeWebhookHandler } from "./utils/stripe.js";
 import { userFeedbackRouter } from "./routers/userFeedbackRouter.js";
 import { fileURLToPath } from "url";
 
@@ -27,9 +24,7 @@ export const appRouter = router({
   storeQRCode: storeQRCodeRouter,
   storeCategory: storeCategoryRouter,
   storeCategoryItem: storeCategoryItemRouter,
-  stripe: stripeRouter,
   userFeedback: userFeedbackRouter,
-  subscription: subscriptionRouter,
 });
 
 const corsOptions = {
@@ -42,11 +37,8 @@ const app = express();
 app.use(compression());
 app.use(helmet());
 app.use(cors(corsOptions));
-app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
-
-app.post("/api/stripe/webhook", stripeWebhookHandler);
 
 app.get("/auth/callback", async function (req, res) {
   const code = req.query.code;

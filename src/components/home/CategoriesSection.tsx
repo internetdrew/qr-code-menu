@@ -93,7 +93,6 @@ const CategoriesSection = ({ categories }: CategoriesSectionProps) => {
     <>
       <motion.div layout>
         <motion.div
-          className="pr-1 pl-3"
           layout
           initial={
             shouldReduceMotion

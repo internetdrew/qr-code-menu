@@ -78,7 +78,7 @@ const UserFeedbackForm = ({ onSuccess }: UserFeedbackFormProps) => {
                     {...field}
                   />
                 </FormControl>
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <FormDescription>
                     Share anything that would make MenuNook easier to use.
                   </FormDescription>

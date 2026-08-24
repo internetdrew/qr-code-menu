@@ -34,7 +34,7 @@ const DeleteCategoryAlertDialog = ({
         {
           onSuccess: () => {
             toast.success(
-              `The ${category.name} category has been deleted from your food page.`,
+              `The ${category.name} category has been deleted from your menu.`,
             );
             queryClient.invalidateQueries({
               queryKey: trpc.storeCategory.getAllSortedByIndex.queryKey(),
@@ -55,28 +55,21 @@ const DeleteCategoryAlertDialog = ({
     }
   };
 
-  const title = (
-    <>
-      Are you sure you want to delete the{" "}
-      <span className="text-pink-600">{category?.name}</span> category?
-    </>
-  );
-  const description = (
-    <>
-      This will permanently delete{" "}
-      <span className="font-semibold">{category?.name}</span> and all of its
-      associated items from your food page. If you just want to change the name,
-      cancel this operation use the <span className="font-semibold">Edit</span>{" "}
-      option instead.
-    </>
-  );
-
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle>
+            Delete <span className="text-destructive">{category?.name}</span>?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            {" "}
+            This will permanently delete{" "}
+            <span className="font-semibold">{category?.name}</span> and all of
+            its associated items from your menu. If you just want to change the
+            name, cancel this operation use the{" "}
+            <span className="font-semibold">Edit</span> option instead.
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
