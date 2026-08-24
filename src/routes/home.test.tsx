@@ -9,6 +9,7 @@ import {
   CATEGORY_DESCRIPTION_LIMIT,
   CATEGORY_NAME_LIMIT,
 } from "../../shared/storeCategory";
+import { USER_FEEDBACK_LIMIT } from "../../shared/userFeedback";
 import "@/components/Onboarding";
 import "@/pages/HomePage";
 import "@/pages/HomeRoute";
@@ -60,8 +61,10 @@ const createPreviewStore = (categories = [sandwichCategory]) => ({
 
 const useStoreHandlers = ({
   categories = [sandwichCategory],
+  onFeedbackSubmit,
 }: {
   categories?: (typeof sandwichCategory)[];
+  onFeedbackSubmit?: (feedback: string) => void;
 } = {}) => {
   let currentCategories = categories;
 
@@ -121,6 +124,22 @@ const useStoreHandlers = ({
         );
 
         return { result: { data: createdItem } };
+      },
+      "userFeedback.submit": (input) => {
+        const values = input as { feedback: string };
+        onFeedbackSubmit?.(values.feedback);
+
+        return {
+          result: {
+            data: {
+              id: 1,
+              created_at: "2026-01-01T00:00:00Z",
+              email: "owner@example.com",
+              feedback: values.feedback,
+              user_id: "user-1",
+            },
+          },
+        };
       },
     }),
   );
@@ -364,6 +383,72 @@ describe("home route", () => {
     expect(screen.getByLabelText("Search Result Title")).toHaveValue(
       "Sunny Deli Menu",
     );
+  });
+
+  it("lets an owner send feedback from quick actions", async () => {
+    const user = userEvent.setup();
+    let submittedFeedback = "";
+    useStoreHandlers({
+      onFeedbackSubmit: (feedback) => {
+        submittedFeedback = feedback;
+      },
+    });
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open quick actions" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Send feedback" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Send feedback" }),
+    ).toBeInTheDocument();
+
+    const feedback =
+      "The add item form was easy to find, but I expected the price field to explain whether customers see taxes included.";
+
+    await user.type(screen.getByLabelText("Feedback"), feedback);
+    await user.click(screen.getByRole("button", { name: "Send" }));
+
+    expect(submittedFeedback).toBe(feedback);
+    expect(
+      await screen.findByText("Feedback sent. Thank you."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Send feedback" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("caps feedback input at the shared limit", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers();
+    const longFeedback = [
+      "When I am building the menu, I want the feedback form to accept enough detail about confusing category setup, item pricing, image uploads, and preview behavior.",
+      "It should still stop before the message becomes too long for a quick product note.",
+    ]
+      .join(" ")
+      .repeat(8);
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open quick actions" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Send feedback" }));
+    await user.click(screen.getByLabelText("Feedback"));
+    await user.paste(longFeedback);
+
+    expect(screen.getByLabelText("Feedback")).toHaveValue(
+      longFeedback.slice(0, USER_FEEDBACK_LIMIT),
+    );
+    expect(screen.getByText("0 left")).toBeInTheDocument();
   });
 
   it("lets an owner add a new category to an existing store", async () => {
