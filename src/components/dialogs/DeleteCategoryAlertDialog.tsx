@@ -11,17 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import { Button } from "../ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "../ui/drawer";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { StoreCategoryRecord } from "@/types/store";
 
 const DeleteCategoryAlertDialog = ({
@@ -33,7 +22,6 @@ const DeleteCategoryAlertDialog = ({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) => {
-  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const deleteCategoryMutation = useMutation(
     trpc.storeCategory.delete.mutationOptions(),
@@ -82,25 +70,6 @@ const DeleteCategoryAlertDialog = ({
       option instead.
     </>
   );
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent>
-          <DrawerHeader className="px-6 pt-6 pb-2 text-left">
-            <DrawerTitle>{title}</DrawerTitle>
-            <DrawerDescription>{description}</DrawerDescription>
-          </DrawerHeader>
-          <DrawerFooter className="px-6 pt-2 pb-6">
-            <Button onClick={deleteCategory}>Delete</Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>

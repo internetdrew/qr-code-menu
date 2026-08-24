@@ -8,16 +8,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { Copy, Download, ExternalLink, QrCode } from "lucide-react";
@@ -54,7 +44,6 @@ const ShareQRButtonDialog = ({
   storeSlug,
   storeName,
 }: ShareQRButtonDialogProps) => {
-  const isMobile = useIsMobile();
   const prefersReducedMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -347,24 +336,6 @@ const ShareQRButtonDialog = ({
       </Button>
     </div>
   );
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={handleOpenChange}>
-        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader className="px-6 pt-6 pb-2 text-left">
-            <DrawerTitle className="text-base">{"title"}</DrawerTitle>
-            <DrawerDescription className={""}>
-              {dialogDescription}
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-6">{qrCode}</div>
-          <DrawerFooter className="px-6 pt-2 pb-6">{QRActions}</DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

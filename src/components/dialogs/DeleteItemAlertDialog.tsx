@@ -10,17 +10,6 @@ import {
   AlertDialogAction,
 } from "../ui/alert-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "../ui/drawer";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 
 interface DeleteItemAlertDialogProps {
@@ -37,7 +26,6 @@ const DeleteItemAlertDialog = ({
   open,
   onOpenChange,
 }: DeleteItemAlertDialogProps) => {
-  const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const deleteItem = useMutation(
     trpc.storeCategoryItem.delete.mutationOptions(),
@@ -75,27 +63,6 @@ const DeleteItemAlertDialog = ({
       <span className="font-semibold">{item.name}</span> from your food page.
     </>
   );
-
-  if (isMobile) {
-    return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="overflow-hidden">
-          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
-            <DrawerHeader className="px-6 pt-6 pb-2 text-left">
-              <DrawerTitle>{title}</DrawerTitle>
-              <DrawerDescription>{description}</DrawerDescription>
-            </DrawerHeader>
-          </div>
-          <DrawerFooter className="px-6 pt-2 pb-6">
-            <Button onClick={onDelete}>Continue</Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-    );
-  }
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
