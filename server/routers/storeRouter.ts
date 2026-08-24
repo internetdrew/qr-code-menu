@@ -115,6 +115,7 @@ export const storeRouter = router({
           id: z.uuid(),
           imagePath: z.string().nullable().optional(),
           imageUrl: z.url().nullable().optional(),
+          isPublished: z.boolean().optional(),
           name: storeNameSchema.optional(),
           seoTitle: z.string().max(80).nullable().optional(),
           seoDescription: z.string().max(180).nullable().optional(),
@@ -125,7 +126,8 @@ export const storeRouter = router({
             input.seoTitle === undefined &&
             input.seoDescription === undefined &&
             input.imageUrl === undefined &&
-            input.imagePath === undefined
+            input.imagePath === undefined &&
+            input.isPublished === undefined
           ) {
             ctx.addIssue({
               code: "custom",
@@ -183,6 +185,7 @@ export const storeRouter = router({
         .update({
           image_path: input.imagePath,
           image_url: input.imageUrl,
+          is_published: input.isPublished,
           name: input.name,
           menu_seo_title: input.seoTitle,
           menu_seo_description: input.seoDescription,
@@ -271,8 +274,25 @@ export const storeRouter = router({
   getPublic: publicProcedure
     .input(z.object({ storeSlug: z.string() }))
     .query(async ({ input }) => {
+      const { data: store, error } = await supabaseAdminClient
+        .from("stores")
+        .select("id, is_published")
+        .eq("menu_slug", input.storeSlug)
+        .maybeSingle();
+
+      if (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: error.message,
+        });
+      }
+
+      if (!store?.is_published) {
+        return null;
+      }
+
       return fetchStoreWithCategories(supabaseAdminClient, {
-        storeSlug: input.storeSlug,
+        storeId: store.id,
       });
     }),
 });
