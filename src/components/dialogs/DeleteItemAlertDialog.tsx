@@ -60,7 +60,9 @@ const DeleteItemAlertDialog = ({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{`Delete ${item.name}?`}</AlertDialogTitle>
+          <AlertDialogTitle>
+            Delete <span className="text-destructive">{item.name}</span>?
+          </AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{" "}
             <span className="font-semibold">{item.name}</span> from your menu.
