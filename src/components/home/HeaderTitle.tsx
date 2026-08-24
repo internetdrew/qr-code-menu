@@ -1,15 +1,11 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/auth";
-import { trpc } from "@/utils/trpc";
+import type { StoreRecord } from "@/types/store";
 
-const HeaderTitle = () => {
-  const { user } = useAuth();
-  const { data: store } = useQuery(
-    trpc.store.getForUser.queryOptions(undefined, {
-      enabled: !!user,
-    }),
-  );
+interface HeaderTitleProps {
+  store: StoreRecord | null;
+}
+
+const HeaderTitle = ({ store }: HeaderTitleProps) => {
   const shouldReduceMotion = useReducedMotion();
   const appTitle = store?.name ?? "MenuNook";
 
