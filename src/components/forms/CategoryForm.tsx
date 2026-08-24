@@ -122,7 +122,7 @@ const CategoryForm = ({ onSuccess, category }: CategoryFormProps) => {
                   {...field}
                 />
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   {category
                     ? "Update the name of this category."
@@ -152,7 +152,7 @@ const CategoryForm = ({ onSuccess, category }: CategoryFormProps) => {
                   {...field}
                 />
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   Optional context customers see near this category.
                 </FormDescription>

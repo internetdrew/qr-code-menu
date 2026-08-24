@@ -73,8 +73,16 @@ const PublishingDialog = ({
       });
       toast.success(
         nextIsPublished
-          ? `${storeName} is now published.`
+          ? `${storeName} is now live.`
           : `${storeName} is now unpublished.`,
+        nextIsPublished
+          ? {
+              action: {
+                label: "View live menu",
+                onClick: () => window.location.assign(publicUrl),
+              },
+            }
+          : undefined,
       );
       onOpenChange(false);
     } catch (error) {
@@ -88,11 +96,11 @@ const PublishingDialog = ({
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Public page</DialogTitle>
+            <DialogTitle>Menu visibility</DialogTitle>
             <DialogDescription>
               {isPublished
-                ? "Customers can view your public menu."
-                : "Customers can't view your public menu."}
+                ? "Customers can view your live menu."
+                : "Customers can't view your menu while it's hidden."}
             </DialogDescription>
           </DialogHeader>
 
@@ -105,7 +113,7 @@ const PublishingDialog = ({
             )}
           >
             <div className="text-sm font-medium">
-              {isPublished ? "Published" : "Hidden"}
+              {isPublished ? "Live" : "Hidden"}
             </div>
             <p className="text-muted-foreground mt-1 text-sm">
               {isPublished

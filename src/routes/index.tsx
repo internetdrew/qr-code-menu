@@ -14,6 +14,13 @@ const notFoundElement = (
 
 export const routes = [
   {
+    path: "m/:storeSlug",
+    lazy: () =>
+      import("@/pages/StorePage").then((module) => ({
+        Component: module.Store,
+      })),
+  },
+  {
     path: "/login",
     element: <ProtectedRoute requireAuth={false} />,
     children: [

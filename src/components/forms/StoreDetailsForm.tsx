@@ -331,9 +331,9 @@ export const StoreDetailsForm = ({
                     {...field}
                   />
                 </FormControl>
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <FormDescription>
-                    This is the store name customers see on your food page.
+                    This is the store name customers see on your menu.
                   </FormDescription>
                   <RemainingCharacters
                     value={nameValue}
@@ -404,7 +404,7 @@ export const StoreDetailsForm = ({
                   </Button>
                 </div>
                 <FieldDescription className="text-xs">
-                  Displayed on the public food page. JPEG, PNG, or WebP up to
+                  Displayed on the public menu. JPEG, PNG, or WebP up to
                   25MB.
                 </FieldDescription>
               </div>

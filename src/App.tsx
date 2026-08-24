@@ -27,11 +27,12 @@ function App() {
   return (
     <div className="min-h-dvh">
       <nav className="bg-background fixed inset-x-0 top-0 z-40">
-        <header className="mx-auto mt-4 flex max-w-xl items-center justify-between px-4">
-          <HeaderTitle />
+        <header className="mx-auto mt-4 flex max-w-xl items-center justify-between gap-3 px-4">
+          <HeaderTitle store={store ?? null} />
 
           {store && (
             <StoreViewerOptions
+              isPublished={store.is_published}
               storeId={store.id}
               storeMenuSlug={store.menu_slug}
               storeName={store.name}

@@ -1,9 +1,9 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
+  Eye,
   Globe,
   LogOut,
   MessageSquareText,
-  RadioTower,
   Settings,
   Store,
   X,
@@ -95,8 +95,8 @@ const HomeQuickActions = () => {
 
   const actions = [
     {
-      label: "Public page",
-      icon: RadioTower,
+      label: "Menu visibility",
+      icon: Eye,
       onSelect: () => openDialog("publishing"),
     },
     {

@@ -467,7 +467,7 @@ const ItemForm = (props: ItemFormProps) => {
                   {...field}
                 />
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   The item name as it will appear to customers.
                 </FormDescription>
@@ -495,7 +495,7 @@ const ItemForm = (props: ItemFormProps) => {
                   {...field}
                 />
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   Keep it short: ingredients, style, or what makes it special.
                 </FormDescription>

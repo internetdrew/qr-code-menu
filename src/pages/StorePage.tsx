@@ -3,15 +3,13 @@ import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import BackToTopButton from "@/components/store-page/BackToTopButton";
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { NotFound } from "./NotFoundPage";
 import StoreUnavailable from "../components/StoreUnavailable";
-import { toast } from "sonner";
 import { LayoutGroup, useReducedMotion } from "motion/react";
 import StorePreviewBanner from "@/components/StorePreviewBanner";
 import StoreLogo from "@/components/StoreLogo";
 import type { Database } from "../../shared/database.types";
-import { isStoreSubscriptionActive } from "@/utils/subscription";
 import { useAuth } from "@/contexts/auth";
 import ItemImageDialog from "@/components/ItemImageDialog";
 import StoreCategoriesWithItems from "@/components/store-page/StoreCategoriesWithItems";
@@ -38,14 +36,11 @@ type StoreData = StoreRecord & {
 export const Store = () => {
   const { storeSlug } = useParams<{ storeSlug: string }>();
   const { hash, pathname, search } = useLocation();
-  const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const { user, isLoading: authLoading } = useAuth();
   const [selectedItem, setSelectedItem] = useState<StoreItem | null>(null);
 
   const isPreview = pathname.startsWith("/preview/");
-  const successfulSubscription =
-    new URLSearchParams(search).get("success") === "true";
 
   const userStoreQuery = useQuery(
     trpc.store.getForUser.queryOptions(undefined, {
@@ -84,19 +79,6 @@ export const Store = () => {
     ? userStoreQuery.error || previewStoreError
     : publicStoreQuery.error;
 
-  const { data: subscription, isLoading: subscriptionIsLoading } = useQuery(
-    trpc.subscription.getForStore.queryOptions(
-      {
-        storeId: store?.id ?? "",
-      },
-      {
-        enabled: !!store?.id,
-      },
-    ),
-  );
-
-  const subscriptionIsActive = isStoreSubscriptionActive(subscription);
-
   const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -114,37 +96,11 @@ export const Store = () => {
     }
   }, [hash, store]);
 
-  useEffect(() => {
-    if (!isPreview || !successfulSubscription || !store) return;
-
-    toast.success(`${store.name} is now live.`);
-    const nextSearchParams = new URLSearchParams(search);
-    nextSearchParams.delete("success");
-    navigate(
-      {
-        pathname,
-        search: nextSearchParams.toString()
-          ? `?${nextSearchParams.toString()}`
-          : "",
-        hash,
-      },
-      { replace: true },
-    );
-  }, [
-    hash,
-    isPreview,
-    store,
-    navigate,
-    pathname,
-    search,
-    successfulSubscription,
-  ]);
-
   const categoriesWithItems = store?.store_menu_categories.filter(
     (category) => category.items && category.items.length > 0,
   );
 
-  if (storeIsLoading || previewStoreIsLoading || subscriptionIsLoading) {
+  if (storeIsLoading || previewStoreIsLoading) {
     return (
       <div className="mx-auto w-full max-w-screen-sm px-4 py-8">
         <Skeleton className="mx-auto mb-6 h-8 w-1/4" />
@@ -166,18 +122,20 @@ export const Store = () => {
     );
   }
 
-  if (!isPreview && store && !subscriptionIsActive) {
+  if (!isPreview && store && !store.is_published) {
     return <StoreUnavailable storeName={store.name} />;
   }
 
   return (
     <LayoutGroup id="store-item-images">
       <div className="relative flex min-h-dvh flex-col">
-        <StorePreviewBanner
-          subscriptionIsActive={subscriptionIsActive}
-          publicStoreDomain={publicStoreDomain}
-          store={store}
-        />
+        {isPreview && (
+          <StorePreviewBanner
+            isPublished={store.is_published}
+            publicStoreDomain={publicStoreDomain}
+            store={store}
+          />
+        )}
 
         <div className="mx-auto mt-6 w-full max-w-xl flex-1 px-4">
           <StoreNavigation

@@ -120,7 +120,7 @@ export const StoreDiscoveryForm = ({
                     {...field}
                   />
                 </FormControl>
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <FormDescription>
                     Use your store name, what you sell, and where you're
                     located.
@@ -146,11 +146,11 @@ export const StoreDiscoveryForm = ({
                   <Textarea
                     maxLength={SEO_DESCRIPTION_LIMIT}
                     className="h-20 resize-none placeholder:text-[13px]"
-                    placeholder="View Maria's Dominican Sweets' food page for Dominican cakes, flan, and party desserts in Chelsea, MA. Pickup and local delivery available."
+                    placeholder="View Maria's Dominican Sweets' menu for Dominican cakes, flan, and party desserts in Chelsea, MA. Pickup and local delivery available."
                     {...field}
                   />
                 </FormControl>
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center justify-between gap-4">
                   <FormDescription>
                     Keep it short and specific so it reads well in search
                     results.

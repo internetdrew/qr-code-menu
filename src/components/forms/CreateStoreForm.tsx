@@ -167,7 +167,7 @@ export const CreateStoreForm = ({ onSuccess }: { onSuccess: () => void }) => {
                   }}
                 />
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   Use the name customers see on your storefront.
                 </FormDescription>
@@ -219,7 +219,7 @@ export const CreateStoreForm = ({ onSuccess }: { onSuccess: () => void }) => {
                   />
                 </div>
               </FormControl>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center justify-between gap-4">
                 <FormDescription>
                   Choose carefully. You can rename your store later, but{" "}
                   <strong>
