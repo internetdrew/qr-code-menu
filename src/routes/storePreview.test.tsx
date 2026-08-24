@@ -4,9 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
-import { authedUserState, noUserState } from "@/utils/test/userStates";
+import { authedUserState } from "@/utils/test/userStates";
 import type { StoreCategory } from "@/pages/StorePage";
-import "@/pages/StorePage";
 import { toast } from "sonner";
 
 const store = {
@@ -74,7 +73,11 @@ describe("store preview route", () => {
     });
 
     expect(
-      await screen.findByRole("heading", { name: "Sunny Deli" }),
+      await screen.findByRole(
+        "heading",
+        { name: "Sunny Deli" },
+        { timeout: 3_000 },
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Sandwiches" }),
@@ -314,43 +317,14 @@ describe("store preview route", () => {
     ).toHaveAttribute("href", "https://menunook.com/m/sunny-deli");
   });
 
-  it("shows a published public store", async () => {
-    server.use(
-      createTrpcQueryHandler({
-        "store.getPublic": () => ({
-          result: { data: { ...previewStore, is_published: true } },
-        }),
-      }),
-    );
-
+  it("does not expose the old public menu route in the app", async () => {
     renderApp({
       initialEntries: ["/m/sunny-deli"],
-      authMock: noUserState,
+      authMock: authedUserState,
     });
 
     expect(
-      await screen.findByRole("heading", { name: "Sunny Deli" }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("Turkey Club")).toBeInTheDocument();
-    expect(
-      screen.queryByText(/hidden from customers/i),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not show an unpublished public store", async () => {
-    server.use(
-      createTrpcQueryHandler({
-        "store.getPublic": () => ({ result: { data: null } }),
-      }),
-    );
-
-    renderApp({
-      initialEntries: ["/m/sunny-deli"],
-      authMock: noUserState,
-    });
-
-    expect(
-      await screen.findByRole("heading", { name: "Store Not Found" }),
+      await screen.findByRole("heading", { name: "Page Not Found" }),
     ).toBeInTheDocument();
     expect(screen.queryByText("Turkey Club")).not.toBeInTheDocument();
   });

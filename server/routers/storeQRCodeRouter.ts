@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "../trpc.js";
+import { qrLimitedProcedure, router } from "../trpc.js";
 import QRCode from "qrcode";
 import { buildStorePublicUrl } from "../utils/storePublicUrl.js";
 import type { StoreRow } from "../utils/storeTypes.js";
 
 export const storeQRCodeRouter = router({
-  getPublicUrlForStore: protectedProcedure
+  getPublicUrlForStore: qrLimitedProcedure
     .input(
       z.object({
         storeId: z.uuid(),

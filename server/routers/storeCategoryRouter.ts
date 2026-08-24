@@ -1,10 +1,14 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "../trpc.js";
+import {
+  protectedMutationLimitedProcedure,
+  protectedProcedure,
+  router,
+} from "../trpc.js";
 import { storeCategoryFieldsSchema } from "../../shared/storeCategory.js";
 
 export const storeCategoryRouter = router({
-  create: protectedProcedure
+  create: protectedMutationLimitedProcedure
     .input(
       z.object({
         storeId: z.uuid(),
@@ -89,7 +93,7 @@ export const storeCategoryRouter = router({
       }
       return data;
     }),
-  update: protectedProcedure
+  update: protectedMutationLimitedProcedure
     .input(
       z.object({
         categoryId: z.number(),
@@ -117,7 +121,7 @@ export const storeCategoryRouter = router({
 
       return data;
     }),
-  delete: protectedProcedure
+  delete: protectedMutationLimitedProcedure
     .input(
       z.object({
         categoryId: z.number(),
@@ -142,7 +146,7 @@ export const storeCategoryRouter = router({
 
       return data;
     }),
-  updateOrder: protectedProcedure
+  updateOrder: protectedMutationLimitedProcedure
     .input(
       z.object({
         storeId: z.uuid().nullable(),

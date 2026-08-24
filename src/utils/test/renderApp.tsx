@@ -21,6 +21,7 @@ export function renderApp({
   const router = createMemoryRouter(routes, {
     initialEntries,
   });
+  router.initialize();
 
   return render(
     <QueryClientProvider client={queryClient}>
