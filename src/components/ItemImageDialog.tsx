@@ -58,12 +58,9 @@ const ItemImageDialog = ({
                     Full-size item image.
                   </Dialog.Description>
                   {selectedItem.image_url && (
-                    <motion.img
+                    <motion.div
                       layoutId={`store-item-image-${selectedItem.id}`}
-                      src={selectedItem.image_url}
-                      alt={selectedItem.name}
-                      decoding="async"
-                      className="object-cover"
+                      className="h-full w-full overflow-hidden rounded-xl"
                       style={{
                         aspectRatio: "4 / 3",
                         borderRadius: 12,
@@ -73,7 +70,14 @@ const ItemImageDialog = ({
                         width: "100%",
                       }}
                       transition={{ layout: layoutTransition }}
-                    />
+                    >
+                      <img
+                        src={selectedItem.image_url}
+                        alt={selectedItem.name}
+                        decoding="async"
+                        className="h-full w-full object-cover"
+                      />
+                    </motion.div>
                   )}
                   <Dialog.Close asChild>
                     <motion.button

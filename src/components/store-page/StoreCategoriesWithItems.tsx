@@ -44,7 +44,7 @@ const StoreItemImageButton = ({
           zIndex.set(activeThumbnailZIndex);
         });
       }}
-      className="group/image shrink-0 cursor-zoom-in overflow-hidden rounded-xl focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-4 focus-visible:outline-none"
+      className="group/image shrink-0 cursor-zoom-in focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-4 focus-visible:outline-none"
       style={{
         aspectRatio: "1 / 1",
         height: 64,
@@ -55,13 +55,9 @@ const StoreItemImageButton = ({
       aria-haspopup="dialog"
       aria-label={`Open larger image for ${item.name}`}
     >
-      <motion.img
+      <motion.div
         layoutId={`store-item-image-${item.id}`}
-        src={item.image_url}
-        alt={item.name}
-        loading="lazy"
-        decoding="async"
-        className="object-cover"
+        className="h-full w-full overflow-hidden rounded-xl"
         style={{
           aspectRatio: "1 / 1",
           borderRadius: 12,
@@ -71,7 +67,15 @@ const StoreItemImageButton = ({
         transition={{ layout: layoutTransition }}
         onLayoutAnimationStart={() => zIndex.set(activeThumbnailZIndex)}
         onLayoutAnimationComplete={() => zIndex.set(0)}
-      />
+      >
+        <img
+          src={item.image_url}
+          alt={item.name}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+        />
+      </motion.div>
     </motion.button>
   );
 };
