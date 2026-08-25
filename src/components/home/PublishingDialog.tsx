@@ -2,7 +2,7 @@ import { trpc } from "@/utils/trpc";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, ScrollText } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { toast } from "sonner";
 import { AnimatedSubmitButton } from "../forms/AnimatedSubmitButton";
 import {
@@ -48,10 +48,12 @@ const PublishingDialog = ({
   storeMenuSlug,
   storeName,
 }: PublishingDialogProps) => {
+  const { pathname } = useLocation();
   const queryClient = useQueryClient();
   const updateStore = useMutation(trpc.store.update.mutationOptions());
   const [confirmUnpublishIsOpen, setConfirmUnpublishIsOpen] = useState(false);
   const publicUrl = `${publicStoreDomain}/m/${storeMenuSlug}`;
+  const isStorePreviewRoute = pathname === "/preview/store";
 
   const handlePublishSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -122,7 +124,7 @@ const PublishingDialog = ({
             </p>
           </div>
 
-          <DialogFooter className="gap-2 sm:justify-between">
+          <DialogFooter className="flex gap-2 sm:justify-between">
             {isPublished ? (
               <Button asChild variant="outline" size="sm">
                 <a href={publicUrl}>
@@ -130,7 +132,7 @@ const PublishingDialog = ({
                   View live page
                 </a>
               </Button>
-            ) : (
+            ) : isStorePreviewRoute ? null : (
               <Button asChild variant="outline" size="sm">
                 <Link to="/preview/store">
                   <ScrollText />
@@ -145,18 +147,21 @@ const PublishingDialog = ({
                 variant="destructive"
                 size="sm"
                 disabled={updateStore.isPending}
+                className="ml-auto"
                 onClick={() => setConfirmUnpublishIsOpen(true)}
               >
                 Unpublish menu
               </Button>
             ) : (
-              <form onSubmit={handlePublishSubmit}>
-                <AnimatedSubmitButton
-                  isSubmitting={updateStore.isPending}
-                  idleLabel="Publish menu"
-                  submittingLabel="Publishing..."
-                />
-              </form>
+              <div className="ml-auto">
+                <form onSubmit={handlePublishSubmit}>
+                  <AnimatedSubmitButton
+                    isSubmitting={updateStore.isPending}
+                    idleLabel="Publish menu"
+                    submittingLabel="Publishing..."
+                  />
+                </form>
+              </div>
             )}
           </DialogFooter>
         </DialogContent>

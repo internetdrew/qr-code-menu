@@ -57,7 +57,6 @@ const StorePreviewBanner: FC<StorePreviewBannerProps> = ({
                 <>
                   <span>Your menu is hidden from customers.</span>
                   <Button
-                    type="button"
                     size="xs"
                     onClick={() => setPublishingDialogIsOpen(true)}
                   >

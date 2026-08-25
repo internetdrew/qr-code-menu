@@ -15,9 +15,6 @@ import { useStoreContext } from "@/contexts/StoreContext";
 const CategoriesSection = lazy(
   () => import("@/components/home/CategoriesSection"),
 );
-const HomeQuickActions = lazy(
-  () => import("@/components/home/HomeQuickActions"),
-);
 
 export type StoreCategory = StorePreviewCategory;
 
@@ -43,8 +40,6 @@ export const HomePage = () => {
   return (
     <div className="pt-32 pb-10">
       <CategoriesSection categories={categories} />
-
-      <HomeQuickActions />
 
       <AlertDialog open={showLaunchSuccess} onOpenChange={setShowLaunchSuccess}>
         <AlertDialogContent>

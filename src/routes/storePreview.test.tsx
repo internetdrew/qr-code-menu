@@ -94,6 +94,38 @@ describe("store preview route", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows the menu loader while the preview menu loads", async () => {
+    let resolvePreview: (storePreview: PreviewStore) => void;
+    const previewRequest = new Promise<PreviewStore>((resolve) => {
+      resolvePreview = resolve;
+    });
+
+    server.use(
+      createTrpcQueryHandler({
+        "store.getForUser": () => ({ result: { data: store } }),
+        "store.getPreview": async () => ({
+          result: { data: await previewRequest },
+        }),
+      }),
+    );
+
+    renderApp({
+      initialEntries: ["/preview/store"],
+      authMock: authedUserState,
+    });
+
+    expect(
+      await screen.findByRole("status", { name: "Loading MenuNook" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sunny Deli" })).toBeNull();
+
+    resolvePreview!(previewStore);
+
+    expect(
+      await screen.findByRole("heading", { name: "Sunny Deli" }),
+    ).toBeInTheDocument();
+  });
+
   it("lets an owner publish the menu from the preview banner", async () => {
     const user = userEvent.setup();
     const toastSuccess = vi.spyOn(toast, "success");
@@ -136,6 +168,12 @@ describe("store preview route", () => {
 
     expect(
       await screen.findByRole("heading", { name: "Menu visibility" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Preview" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Publish menu" }),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Publish menu" }));

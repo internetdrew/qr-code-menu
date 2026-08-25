@@ -11,8 +11,8 @@ const HeaderTitle = ({ store }: HeaderTitleProps) => {
   const appTitle = store?.name ?? "MenuNook";
   const statusLabel = store
     ? store.is_published
-      ? "Live"
-      : "Hidden"
+      ? "Menu live"
+      : "Menu hidden"
     : null;
 
   return (

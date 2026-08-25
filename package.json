@@ -62,7 +62,6 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.12",
-    "vaul": "^1.1.2",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -96,6 +95,7 @@
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.41.0",
     "vite": "^7.1.3",
+    "vite-plugin-pwa": "^1.3.0",
     "vitest": "^4.0.16"
   }
 }

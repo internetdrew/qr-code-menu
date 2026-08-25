@@ -1,7 +1,7 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
@@ -12,6 +12,19 @@ import {
 } from "../../shared/storeCategory";
 import { USER_FEEDBACK_LIMIT } from "../../shared/userFeedback";
 import "@/components/Onboarding";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  setViewportWidth(1024);
+});
+
+const setViewportWidth = (width: number) => {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    writable: true,
+    value: width,
+  });
+};
 
 const store = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -291,7 +304,7 @@ describe("home route", () => {
     ).toBeInTheDocument();
   });
 
-  it("lets an owner publish a store from quick actions", async () => {
+  it("lets an owner publish a store from the account menu", async () => {
     const user = userEvent.setup();
     let updateInput: unknown;
     useStoreHandlers({
@@ -306,7 +319,7 @@ describe("home route", () => {
     });
 
     expect(
-      await screen.findByLabelText("Menu status: Hidden"),
+      await screen.findByLabelText("Menu status: Menu hidden"),
     ).toBeInTheDocument();
     expect(await screen.findByRole("link", { name: /preview/i })).toBeInTheDocument();
     expect(
@@ -317,9 +330,9 @@ describe("home route", () => {
     ).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: "Open quick actions" }),
+      screen.getByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+    await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
 
     expect(
       await screen.findByRole("heading", { name: "Menu visibility" }),
@@ -345,7 +358,7 @@ describe("home route", () => {
       await screen.findByRole("button", { name: /share/i }),
     ).toBeInTheDocument();
     expect(
-      await screen.findByLabelText("Menu status: Live"),
+      await screen.findByLabelText("Menu status: Menu live"),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /^view$/i }),
@@ -383,9 +396,9 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+    await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
     await user.click(screen.getByRole("button", { name: "Publish menu" }));
 
     expect(
@@ -415,7 +428,7 @@ describe("home route", () => {
     consoleError.mockRestore();
   });
 
-  it("confirms before unpublishing a store from quick actions", async () => {
+  it("confirms before unpublishing a store from the account menu", async () => {
     const user = userEvent.setup();
     let updateInput: unknown;
     useStoreHandlers({
@@ -431,7 +444,7 @@ describe("home route", () => {
     });
 
     expect(
-      await screen.findByLabelText("Menu status: Live"),
+      await screen.findByLabelText("Menu status: Menu live"),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole("button", { name: /share/i }),
@@ -441,9 +454,9 @@ describe("home route", () => {
     ).not.toBeInTheDocument();
 
     await user.click(
-      screen.getByRole("button", { name: "Open quick actions" }),
+      screen.getByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Menu visibility" }));
+    await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
 
     expect(
       await screen.findByRole("heading", { name: "Menu visibility" }),
@@ -559,7 +572,7 @@ describe("home route", () => {
     expect(screen.queryByText("No categories created")).not.toBeInTheDocument();
   });
 
-  it("lets an owner open store profile from quick actions", async () => {
+  it("lets an owner open store profile from the account menu", async () => {
     const user = userEvent.setup();
     useStoreHandlers();
 
@@ -569,9 +582,9 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Store profile" }));
+    await user.click(screen.getByRole("menuitem", { name: "Store profile" }));
 
     expect(
       await screen.findByRole("heading", { name: "Store profile" }),
@@ -579,7 +592,7 @@ describe("home route", () => {
     expect(screen.getByLabelText("Store Name")).toHaveValue("Sunny Deli");
   });
 
-  it("keeps store profile in quick actions", async () => {
+  it("shows owner account actions from the header menu button", async () => {
     const user = userEvent.setup();
     useStoreHandlers();
 
@@ -589,22 +602,127 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
 
     expect(
-      screen.getByRole("button", { name: "Store profile" }),
+      screen.getByRole("menuitem", { name: "Menu Visibility" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Send feedback" }),
+      screen.getByRole("menuitem", { name: "Search Appearance" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Log out" })).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "Edit store profile" }),
+      screen.getByRole("menuitem", { name: "Store profile" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("menuitem", { name: "Install app" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: "Send feedback" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("menuitem", { name: /Log out/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("hides install actions when the app is already installed", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers();
+
+    vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
+      matches: query === "(display-mode: standalone)",
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => true,
+    }));
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open account menu" }),
+    );
+
+    expect(
+      screen.queryByRole("menuitem", { name: "Install app" }),
     ).not.toBeInTheDocument();
   });
 
-  it("lets an owner open search appearance from quick actions", async () => {
+  it("explains how to install the app on mobile when no browser prompt is available", async () => {
+    const user = userEvent.setup();
+    setViewportWidth(390);
+    useStoreHandlers();
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open account menu" }),
+    );
+    await user.click(screen.getByRole("menuitem", { name: "Install app" }));
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Add MenuNook to your Home Screen",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "On iPhone or iPad, tap Share, choose Add to Home Screen, then tap Add.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "On Android, open the browser menu and choose Install app or Add to Home screen.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("uses the browser install prompt when it is available", async () => {
+    const user = userEvent.setup();
+    const prompt = vi.fn().mockResolvedValue(undefined);
+    useStoreHandlers();
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    const installPromptEvent = new Event("beforeinstallprompt");
+    Object.assign(installPromptEvent, {
+      prompt,
+      userChoice: Promise.resolve({ outcome: "dismissed", platform: "web" }),
+    });
+
+    await screen.findByRole("button", { name: "Open account menu" });
+    act(() => {
+      window.dispatchEvent(installPromptEvent);
+    });
+    await user.click(
+      await screen.findByRole("button", { name: "Open account menu" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole("menuitem", { name: "Install app" }),
+      ).toBeInTheDocument();
+    });
+    await user.click(screen.getByRole("menuitem", { name: "Install app" }));
+
+    await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
+    expect(
+      screen.queryByRole("heading", {
+        name: "Add MenuNook to your Home Screen",
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("lets an owner open search appearance from the account menu", async () => {
     const user = userEvent.setup();
     useStoreHandlers();
 
@@ -614,9 +732,9 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Search Appearance" }));
+    await user.click(screen.getByRole("menuitem", { name: "Search Appearance" }));
 
     expect(
       await screen.findByRole("heading", { name: "Search Appearance" }),
@@ -626,7 +744,7 @@ describe("home route", () => {
     );
   });
 
-  it("lets an owner send feedback from quick actions", async () => {
+  it("lets an owner send feedback from the account menu", async () => {
     const user = userEvent.setup();
     let submittedFeedback = "";
     useStoreHandlers({
@@ -641,9 +759,9 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Send feedback" }));
+    await user.click(screen.getByRole("menuitem", { name: "Send feedback" }));
 
     expect(
       await screen.findByRole("heading", { name: "Send feedback" }),
@@ -680,9 +798,9 @@ describe("home route", () => {
     });
 
     await user.click(
-      await screen.findByRole("button", { name: "Open quick actions" }),
+      await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("button", { name: "Send feedback" }));
+    await user.click(screen.getByRole("menuitem", { name: "Send feedback" }));
     await user.click(screen.getByLabelText("Feedback"));
     await user.paste(longFeedback);
 

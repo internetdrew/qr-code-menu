@@ -162,6 +162,7 @@
   }
   body {
     @apply text-foreground bg-[#fffefb];
+    position: relative;
     font-family: "Geist Variable", sans-serif;
   }
 }

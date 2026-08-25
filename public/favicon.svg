@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(59.2% 0.249 0.584)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scroll-text-icon lucide-scroll-text"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="MenuNook">
+  <rect width="512" height="512" fill="#fffefb"/>
+  <text
+    x="50%"
+    y="50%"
+    dy="0.06em"
+    fill="#251513"
+    dominant-baseline="middle"
+    font-family="Bricolage Grotesque Variable, Bricolage Grotesque, sans-serif"
+    font-size="332"
+    font-weight="560"
+    text-anchor="middle"
+  >M</text>
+</svg>
