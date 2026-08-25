@@ -321,7 +321,9 @@ describe("home route", () => {
     expect(
       await screen.findByLabelText("Menu status: Menu hidden"),
     ).toBeInTheDocument();
-    expect(await screen.findByRole("link", { name: /preview/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("link", { name: /preview/i }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: /^view$/i }),
     ).not.toBeInTheDocument();
@@ -329,9 +331,7 @@ describe("home route", () => {
       screen.queryByRole("button", { name: /share/i }),
     ).not.toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "Open account menu" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Open account menu" }));
     await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
 
     expect(
@@ -453,9 +453,7 @@ describe("home route", () => {
       screen.queryByRole("link", { name: /^view$/i }),
     ).not.toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "Open account menu" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Open account menu" }));
     await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
 
     expect(
@@ -469,14 +467,11 @@ describe("home route", () => {
         "Live",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View live page" })).toHaveAttribute(
-      "href",
-      "https://menunook.com/m/sunny-deli",
-    );
+    expect(
+      screen.getByRole("link", { name: "View live page" }),
+    ).toHaveAttribute("href", "https://menunook.com/m/sunny-deli");
 
-    await user.click(
-      screen.getByRole("button", { name: "Unpublish menu" }),
-    );
+    await user.click(screen.getByRole("button", { name: "Unpublish menu" }));
 
     expect(
       await screen.findByRole("heading", { name: "Unpublish menu?" }),
@@ -492,7 +487,9 @@ describe("home route", () => {
       });
     });
     await waitFor(() => {
-      expect(screen.getByRole("link", { name: /preview/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /preview/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -633,6 +630,8 @@ describe("home route", () => {
       matches: query === "(display-mode: standalone)",
       media: query,
       onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
       addEventListener: () => {},
       removeEventListener: () => {},
       dispatchEvent: () => true,
@@ -734,7 +733,9 @@ describe("home route", () => {
     await user.click(
       await screen.findByRole("button", { name: "Open account menu" }),
     );
-    await user.click(screen.getByRole("menuitem", { name: "Search Appearance" }));
+    await user.click(
+      screen.getByRole("menuitem", { name: "Search Appearance" }),
+    );
 
     expect(
       await screen.findByRole("heading", { name: "Search Appearance" }),

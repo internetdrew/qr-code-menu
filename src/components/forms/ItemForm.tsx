@@ -44,14 +44,33 @@ const formSchema = storeItemFieldsSchema.extend({
 
 const PRICE_INPUT_PATTERN = /^\d*(?:\.\d{0,2})?$/;
 const STORE_ITEM_IMAGE_BUCKET = "store_item_images";
-const MAX_RAW_IMAGE_BYTES = 25 * 1024 * 1024;
+const MAX_RAW_IMAGE_BYTES = 100 * 1024 * 1024;
 const MAX_UPLOAD_IMAGE_BYTES = 2 * 1024 * 1024;
 const MAX_COMPRESSED_IMAGE_EDGE = 1600;
+const MIN_COMPRESSED_IMAGE_EDGE = 720;
 const COMPRESSED_IMAGE_TYPE = "image/webp";
 const COMPRESSED_IMAGE_EXTENSION = "webp";
 const COMPRESSED_IMAGE_QUALITY = 0.82;
-const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const ACCEPTED_IMAGE_INPUT_TYPES = "image/jpeg,image/png,image/webp";
+const MIN_COMPRESSED_IMAGE_QUALITY = 0.56;
+const COMPRESSED_IMAGE_EDGE_STEP = 0.8;
+const COMPRESSED_IMAGE_QUALITY_STEP = 0.1;
+const ACCEPTED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
+const ACCEPTED_IMAGE_EXTENSIONS = new Set([
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "heic",
+  "heif",
+]);
+const ACCEPTED_IMAGE_INPUT_TYPES =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif";
 
 const formatBytesAsMb = (bytes: number) =>
   `${Math.round((bytes / 1024 / 1024) * 10) / 10}MB`;
@@ -109,11 +128,24 @@ const getCompressedImageName = (fileName: string) => {
   return `${baseName}.${COMPRESSED_IMAGE_EXTENSION}`;
 };
 
-const compressImageFile = async (file: File) => {
-  const image = await loadImage(file);
+const isAcceptedImageFile = (file: File) => {
+  const extension = file.name.split(".").pop()?.toLowerCase();
+
+  return (
+    ACCEPTED_IMAGE_TYPES.has(file.type) ||
+    (!!extension && ACCEPTED_IMAGE_EXTENSIONS.has(extension))
+  );
+};
+
+const compressImage = async (
+  image: HTMLImageElement,
+  file: File,
+  maxEdge: number,
+  quality: number,
+) => {
   const scale = Math.min(
     1,
-    MAX_COMPRESSED_IMAGE_EDGE / Math.max(image.width, image.height),
+    maxEdge / Math.max(image.width, image.height),
   );
   const width = Math.max(1, Math.round(image.width * scale));
   const height = Math.max(1, Math.round(image.height * scale));
@@ -132,13 +164,51 @@ const compressImageFile = async (file: File) => {
   const blob = await canvasToBlob(
     canvas,
     COMPRESSED_IMAGE_TYPE,
-    COMPRESSED_IMAGE_QUALITY,
+    quality,
   );
 
   return new File([blob], getCompressedImageName(file.name), {
     type: COMPRESSED_IMAGE_TYPE,
     lastModified: Date.now(),
   });
+};
+
+const compressImageFile = async (file: File) => {
+  const image = await loadImage(file);
+  let maxEdge = MAX_COMPRESSED_IMAGE_EDGE;
+  let quality = COMPRESSED_IMAGE_QUALITY;
+  let smallestCompressedFile: File | null = null;
+
+  while (
+    maxEdge >= MIN_COMPRESSED_IMAGE_EDGE &&
+    quality >= MIN_COMPRESSED_IMAGE_QUALITY
+  ) {
+    const compressedFile = await compressImage(image, file, maxEdge, quality);
+
+    if (
+      !smallestCompressedFile ||
+      compressedFile.size < smallestCompressedFile.size
+    ) {
+      smallestCompressedFile = compressedFile;
+    }
+
+    if (compressedFile.size <= MAX_UPLOAD_IMAGE_BYTES) {
+      return compressedFile;
+    }
+
+    if (quality > MIN_COMPRESSED_IMAGE_QUALITY) {
+      quality = Math.max(
+        MIN_COMPRESSED_IMAGE_QUALITY,
+        quality - COMPRESSED_IMAGE_QUALITY_STEP,
+      );
+      continue;
+    }
+
+    maxEdge = Math.floor(maxEdge * COMPRESSED_IMAGE_EDGE_STEP);
+    quality = COMPRESSED_IMAGE_QUALITY;
+  }
+
+  return smallestCompressedFile;
 };
 
 const ItemForm = (props: ItemFormProps) => {
@@ -248,14 +318,14 @@ const ItemForm = (props: ItemFormProps) => {
       return;
     }
 
-    if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
-      toast.error("Please choose a JPEG, PNG, or WebP image.");
+    if (!isAcceptedImageFile(file)) {
+      toast.error("Please choose a JPEG, PNG, WebP, HEIC, or HEIF image.");
       return;
     }
 
     if (file.size > MAX_RAW_IMAGE_BYTES) {
       toast.error(
-        `Please choose an image smaller than ${formatBytesAsMb(
+        `Please choose a photo smaller than ${formatBytesAsMb(
           MAX_RAW_IMAGE_BYTES,
         )}.`,
       );
@@ -267,11 +337,11 @@ const ItemForm = (props: ItemFormProps) => {
     try {
       const compressedFile = await compressImageFile(file);
 
-      if (compressedFile.size > MAX_UPLOAD_IMAGE_BYTES) {
+      if (!compressedFile || compressedFile.size > MAX_UPLOAD_IMAGE_BYTES) {
         toast.error(
-          `Please choose a smaller image. The optimized image must be under ${formatBytesAsMb(
+          `This photo could not be optimized under ${formatBytesAsMb(
             MAX_UPLOAD_IMAGE_BYTES,
-          )}.`,
+          )}. Please try another photo.`,
         );
         return;
       }
