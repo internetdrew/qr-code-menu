@@ -90,6 +90,9 @@ describe("store preview route", () => {
       screen.getByRole("button", { name: "Publish menu" }),
     ).toBeInTheDocument();
     expect(
+      screen.getByRole("link", { name: "Back to editor" }),
+    ).toHaveAttribute("href", "/");
+    expect(
       screen.queryByRole("button", { name: "Open category menu" }),
     ).not.toBeInTheDocument();
   });

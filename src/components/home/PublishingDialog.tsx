@@ -126,14 +126,24 @@ const PublishingDialog = ({
 
           <DialogFooter className="flex gap-2 sm:justify-between">
             {isPublished ? (
-              <Button asChild variant="outline" size="sm">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+              >
                 <a href={publicUrl}>
                   <ExternalLink />
                   View live page
                 </a>
               </Button>
             ) : isStorePreviewRoute ? null : (
-              <Button asChild variant="outline" size="sm">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="w-full sm:w-auto"
+              >
                 <Link to="/preview/store">
                   <ScrollText />
                   Preview
@@ -147,14 +157,17 @@ const PublishingDialog = ({
                 variant="destructive"
                 size="sm"
                 disabled={updateStore.isPending}
-                className="ml-auto"
+                className="w-full sm:ml-auto sm:w-auto"
                 onClick={() => setConfirmUnpublishIsOpen(true)}
               >
                 Unpublish menu
               </Button>
             ) : (
-              <div className="ml-auto">
-                <form onSubmit={handlePublishSubmit}>
+              <div className="w-full sm:ml-auto sm:w-auto">
+                <form
+                  onSubmit={handlePublishSubmit}
+                  className="[&_button]:w-full sm:[&_button]:w-auto"
+                >
                   <AnimatedSubmitButton
                     isSubmitting={updateStore.isPending}
                     idleLabel="Publish menu"
