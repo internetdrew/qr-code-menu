@@ -31,12 +31,7 @@ function App() {
           <HeaderTitle store={store ?? null} />
 
           {store && (
-            <StoreViewerOptions
-              isPublished={store.is_published}
-              storeId={store.id}
-              storeMenuSlug={store.menu_slug}
-              storeName={store.name}
-            />
+            <StoreViewerOptions store={store} />
           )}
         </header>
       </nav>

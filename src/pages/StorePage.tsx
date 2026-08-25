@@ -1,4 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/utils/trpc";
 import { useQuery } from "@tanstack/react-query";
 import BackToTopButton from "@/components/store-page/BackToTopButton";
@@ -13,6 +12,7 @@ import { useAuth } from "@/contexts/auth";
 import ItemImageDialog from "@/components/ItemImageDialog";
 import StoreCategoriesWithItems from "@/components/store-page/StoreCategoriesWithItems";
 import StoreNavigation from "@/components/store-page/StoreNavigation";
+import { MenuLoader } from "@/components/MenuLoader";
 
 const publicStoreDomain =
   import.meta.env.VITE_PUBLIC_STORE_DOMAIN ||
@@ -84,14 +84,7 @@ export const Store = () => {
   );
 
   if (storeIsLoading) {
-    return (
-      <div className="mx-auto w-full max-w-screen-sm px-4 py-8">
-        <Skeleton className="mx-auto mb-6 h-8 w-1/4" />
-        <Skeleton className="mx-auto mt-8 h-8 w-1/4" />
-        <Skeleton className="mt-16 mb-2 h-8 w-1/4" />
-        <Skeleton className="h-8 w-1/2" />
-      </div>
-    );
+    return <MenuLoader />;
   }
 
   if (!storeData || error) {
