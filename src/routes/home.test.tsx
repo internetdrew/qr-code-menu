@@ -6,12 +6,17 @@ import { server } from "@/mocks/node";
 import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
 import { authedUserState, noUserState } from "@/utils/test/userStates";
+import { redirectTo } from "@/utils/browserNavigation";
 import {
   CATEGORY_DESCRIPTION_LIMIT,
   CATEGORY_NAME_LIMIT,
 } from "../../shared/storeCategory";
 import { USER_FEEDBACK_LIMIT } from "../../shared/userFeedback";
 import "@/components/Onboarding";
+
+vi.mock("@/utils/browserNavigation", () => ({
+  redirectTo: vi.fn(),
+}));
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -77,12 +82,27 @@ const useStoreHandlers = ({
   categories = [sandwichCategory],
   isPublished = false,
   onFeedbackSubmit,
+  onCheckoutSessionCreate,
   onStoreUpdate,
+  checkoutSessionResult = {
+    status: "checkout_required",
+    url: "https://checkout.stripe.com/c/pay_menu_nook",
+  },
 }: {
   categories?: (typeof sandwichCategory)[];
   isPublished?: boolean;
   onFeedbackSubmit?: (feedback: string) => void;
+  onCheckoutSessionCreate?: (input: unknown) => void;
   onStoreUpdate?: (input: unknown) => void;
+  checkoutSessionResult?:
+    | {
+        status: "checkout_required";
+        url: string;
+      }
+    | {
+        status: "already_entitled";
+        store: typeof store;
+      };
 } = {}) => {
   let currentCategories = categories;
   let currentStore = { ...store, is_published: isPublished };
@@ -103,6 +123,19 @@ const useStoreHandlers = ({
         };
 
         return { result: { data: currentStore } };
+      },
+      "stripe.createCheckoutSession": (input) => {
+        onCheckoutSessionCreate?.(input);
+
+        if (checkoutSessionResult.status === "already_entitled") {
+          currentStore = checkoutSessionResult.store;
+        }
+
+        return {
+          result: {
+            data: checkoutSessionResult,
+          },
+        };
       },
       "storeCategory.create": (input) => {
         const values = input as { name: string; description?: string };
@@ -304,12 +337,13 @@ describe("home route", () => {
     ).toBeInTheDocument();
   });
 
-  it("lets an owner publish a store from the account menu", async () => {
+  it("sends an owner to Stripe Checkout to publish a store from the account menu", async () => {
     const user = userEvent.setup();
-    let updateInput: unknown;
+    let checkoutInput: unknown;
+
     useStoreHandlers({
-      onStoreUpdate: (input) => {
-        updateInput = input;
+      onCheckoutSessionCreate: (input) => {
+        checkoutInput = input;
       },
     });
 
@@ -349,19 +383,74 @@ describe("home route", () => {
     await user.click(screen.getByRole("button", { name: "Publish menu" }));
 
     await waitFor(() => {
-      expect(updateInput).toMatchObject({
-        id: store.id,
-        isPublished: true,
+      expect(checkoutInput).toMatchObject({
+        storeId: store.id,
       });
     });
+    expect(redirectTo).toHaveBeenCalledWith(
+      "https://checkout.stripe.com/c/pay_menu_nook",
+    );
+    expect(
+      await screen.findByLabelText("Menu status: Menu hidden"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /^view$/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("publishes locally when a store already has an active entitlement", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers({
+      checkoutSessionResult: {
+        status: "already_entitled",
+        store: { ...store, is_published: true },
+      },
+    });
+
+    renderApp({
+      initialEntries: ["/"],
+      authMock: authedUserState,
+    });
+
+    await user.click(
+      await screen.findByRole("button", { name: "Open account menu" }),
+    );
+    await user.click(screen.getByRole("menuitem", { name: "Menu Visibility" }));
+    await user.click(screen.getByRole("button", { name: "Publish menu" }));
+
     expect(
       await screen.findByRole("button", { name: /share/i }),
     ).toBeInTheDocument();
     expect(
       await screen.findByLabelText("Menu status: Menu live"),
     ).toBeInTheDocument();
+  });
+
+  it("shows a live menu after returning from successful checkout", async () => {
+    const user = userEvent.setup();
+    useStoreHandlers({ isPublished: true });
+
+    renderApp({
+      initialEntries: ["/?success=true"],
+      authMock: authedUserState,
+    });
+
     expect(
-      screen.queryByRole("link", { name: /^view$/i }),
+      await screen.findByRole("heading", { name: "Launch Successful" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Your store has been launched successfully!"),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(
+      await screen.findByLabelText("Menu status: Menu live"),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /share/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /preview/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -372,16 +461,16 @@ describe("home route", () => {
       .mockImplementation(() => undefined);
     useStoreHandlers();
     server.use(
-      http.post("/trpc/store.update", () =>
+      http.post("/trpc/stripe.createCheckoutSession", () =>
         HttpResponse.json(
           {
             error: {
-              message: "Publishing failed",
+              message: "Checkout failed",
               code: -32603,
               data: {
                 code: "INTERNAL_SERVER_ERROR",
                 httpStatus: 500,
-                path: "store.update",
+                path: "stripe.createCheckoutSession",
               },
             },
           },
@@ -419,10 +508,10 @@ describe("home route", () => {
       screen.queryByRole("button", { name: /share/i }),
     ).not.toBeInTheDocument();
     expect(
-      await screen.findByText("Failed to update publishing. Please try again."),
+      await screen.findByText("Failed to start checkout. Please try again."),
     ).toBeInTheDocument();
     expect(consoleError).toHaveBeenCalledWith(
-      "Failed to update publishing:",
+      "Failed to start checkout:",
       expect.any(Error),
     );
     consoleError.mockRestore();

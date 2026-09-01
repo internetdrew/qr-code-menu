@@ -14,6 +14,9 @@ import { storeQRCodeRouter } from "./routers/storeQRCodeRouter.js";
 import { storeCategoryRouter } from "./routers/storeCategoryRouter.js";
 import { storeCategoryItemRouter } from "./routers/storeCategoryItemRouter.js";
 import { userFeedbackRouter } from "./routers/userFeedbackRouter.js";
+import { stripeRouter } from "./routers/stripeRouter.js";
+import { entitlementRouter } from "./routers/entitlementRouter.js";
+import { stripeWebhookHandler } from "./utils/stripe.js";
 import { fileURLToPath } from "url";
 
 const serverDir = path.dirname(fileURLToPath(import.meta.url));
@@ -25,6 +28,8 @@ export const appRouter = router({
   storeQRCode: storeQRCodeRouter,
   storeCategory: storeCategoryRouter,
   storeCategoryItem: storeCategoryItemRouter,
+  stripe: stripeRouter,
+  entitlement: entitlementRouter,
   userFeedback: userFeedbackRouter,
 });
 
@@ -38,8 +43,11 @@ const app = express();
 app.use(compression());
 app.use(helmet());
 app.use(cors(corsOptions));
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());
 app.use(cookieParser());
+
+app.post("/api/stripe/webhook", stripeWebhookHandler);
 
 app.get(
   "/auth/callback",
