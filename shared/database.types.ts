@@ -34,6 +34,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      store_entitlements: {
+        Row: {
+          amount_total: number | null
+          created_at: string
+          currency: string | null
+          granted_at: string
+          id: string
+          revoke_reason: string | null
+          revoked_at: string | null
+          status: Database["public"]["Enums"]["STORE_ENTITLEMENT_STATUS"]
+          store_id: string
+          stripe_checkout_session_id: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string
+          stripe_price_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_total?: number | null
+          created_at?: string
+          currency?: string | null
+          granted_at?: string
+          id?: string
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          status?: Database["public"]["Enums"]["STORE_ENTITLEMENT_STATUS"]
+          store_id: string
+          stripe_checkout_session_id: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id: string
+          stripe_price_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_total?: number | null
+          created_at?: string
+          currency?: string | null
+          granted_at?: string
+          id?: string
+          revoke_reason?: string | null
+          revoked_at?: string | null
+          status?: Database["public"]["Enums"]["STORE_ENTITLEMENT_STATUS"]
+          store_id?: string
+          stripe_checkout_session_id?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string
+          stripe_price_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_entitlements_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_menu_categories: {
         Row: {
           created_at: string
@@ -315,7 +374,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      STORE_ENTITLEMENT_STATUS: "active" | "revoked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -445,7 +504,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      STORE_ENTITLEMENT_STATUS: ["active", "revoked"],
+    },
   },
 } as const
 

@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "react-router";
 import { toast } from "sonner";
 import { AnimatedSubmitButton } from "../forms/AnimatedSubmitButton";
+import { redirectTo } from "@/utils/browserNavigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,13 +52,45 @@ const PublishingDialog = ({
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
   const updateStore = useMutation(trpc.store.update.mutationOptions());
+  const createCheckoutSession = useMutation(
+    trpc.stripe.createCheckoutSession.mutationOptions(),
+  );
   const [confirmUnpublishIsOpen, setConfirmUnpublishIsOpen] = useState(false);
   const publicUrl = `${publicStoreDomain}/m/${storeMenuSlug}`;
   const isStorePreviewRoute = pathname === "/preview/store";
 
   const handlePublishSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updatePublishing(true);
+    startCheckout();
+  };
+
+  const startCheckout = async () => {
+    try {
+      const result = await createCheckoutSession.mutateAsync({ storeId });
+
+      if (result.status === "checkout_required") {
+        redirectTo(result.url);
+        return;
+      }
+
+      queryClient.setQueryData(trpc.store.getForUser.queryKey(), result.store);
+      await queryClient.invalidateQueries({
+        queryKey: trpc.store.getForUser.queryKey(),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: trpc.store.getPreview.queryKey(),
+      });
+      toast.success(`${storeName} is now live.`, {
+        action: {
+          label: "View live menu",
+          onClick: () => redirectTo(publicUrl),
+        },
+      });
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Failed to start checkout:", error);
+      toast.error("Failed to start checkout. Please try again.");
+    }
   };
 
   const updatePublishing = async (nextIsPublished: boolean) => {
@@ -81,7 +114,7 @@ const PublishingDialog = ({
           ? {
               action: {
                 label: "View live menu",
-                onClick: () => window.location.assign(publicUrl),
+                onClick: () => redirectTo(publicUrl),
               },
             }
           : undefined,
@@ -169,9 +202,9 @@ const PublishingDialog = ({
                   className="[&_button]:w-full sm:[&_button]:w-auto"
                 >
                   <AnimatedSubmitButton
-                    isSubmitting={updateStore.isPending}
+                    isSubmitting={createCheckoutSession.isPending}
                     idleLabel="Publish menu"
-                    submittingLabel="Publishing..."
+                    submittingLabel="Opening checkout..."
                   />
                 </form>
               </div>

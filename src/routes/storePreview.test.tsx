@@ -6,7 +6,11 @@ import { createTrpcQueryHandler } from "@/utils/test/createTrpcQueryHandler";
 import { renderApp } from "@/utils/test/renderApp";
 import { authedUserState } from "@/utils/test/userStates";
 import type { StoreCategory } from "@/pages/StorePage";
-import { toast } from "sonner";
+import { redirectTo } from "@/utils/browserNavigation";
+
+vi.mock("@/utils/browserNavigation", () => ({
+  redirectTo: vi.fn(),
+}));
 
 const store = {
   id: "11111111-1111-4111-8111-111111111111",
@@ -129,10 +133,8 @@ describe("store preview route", () => {
     ).toBeInTheDocument();
   });
 
-  it("lets an owner publish the menu from the preview banner", async () => {
+  it("sends an owner to Stripe Checkout from the preview banner", async () => {
     const user = userEvent.setup();
-    const toastSuccess = vi.spyOn(toast, "success");
-    let updateInput: unknown;
     let currentStore = { ...store };
     let currentPreviewStore = { ...previewStore };
 
@@ -142,20 +144,15 @@ describe("store preview route", () => {
         "store.getPreview": () => ({
           result: { data: currentPreviewStore },
         }),
-        "store.update": (input) => {
-          const values = input as { isPublished?: boolean };
-          updateInput = input;
-          currentStore = {
-            ...currentStore,
-            is_published: values.isPublished ?? currentStore.is_published,
+        "stripe.createCheckoutSession": () => {
+          return {
+            result: {
+              data: {
+                status: "checkout_required",
+                url: "https://checkout.stripe.com/c/pay_menu_nook",
+              },
+            },
           };
-          currentPreviewStore = {
-            ...currentPreviewStore,
-            is_published:
-              values.isPublished ?? currentPreviewStore.is_published,
-          };
-
-          return { result: { data: currentStore } };
         },
       }),
     );
@@ -181,25 +178,11 @@ describe("store preview route", () => {
 
     await user.click(screen.getByRole("button", { name: "Publish menu" }));
 
-    await waitFor(() => {
-      expect(updateInput).toMatchObject({
-        id: store.id,
-        isPublished: true,
-      });
-    });
     expect(
-      await screen.findByText("This is a preview of your live menu."),
+      await screen.findByText("Your menu is hidden from customers."),
     ).toBeInTheDocument();
-    expect(
-      await screen.findByRole("link", { name: "Visit live menu" }),
-    ).toHaveAttribute("href", "https://menunook.com/m/sunny-deli");
-    expect(toastSuccess).toHaveBeenCalledWith(
-      "Sunny Deli is now live.",
-      expect.objectContaining({
-        action: expect.objectContaining({
-          label: "View live menu",
-        }),
-      }),
+    expect(redirectTo).toHaveBeenCalledWith(
+      "https://checkout.stripe.com/c/pay_menu_nook",
     );
   });
 
